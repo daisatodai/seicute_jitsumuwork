@@ -1,19 +1,17 @@
 <h1>新しい請求元の登録</h1>
-<%= turbo_frame_tag "first_turbo_frame" do %>
-  <%= form_with(model: @requestor, local: true) do |form| %>
-    <% if @requestor.errors.any? %>
-      <div id="error_expanation">
-        <%= @requestor.errors.count %>件のエラーがあります。
-        <ul>
-        <% @requestor.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-        </ul>
-      </div>
-    <% end %>
-    <div>
-    <p><%= form.label :name %></p>
-    <p><%= form.text_field :name %><%= form.submit :追加 %></p>
+<%= form_with(model: @requestor, local: true) do |form| %>
+  <% if @requestor.errors.any? %>
+    <div id="error_expanation">
+      <%= @requestor.errors.count %>件のエラーがあります。
+      <ul>
+      <% @requestor.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
     </div>
   <% end %>
+  <div>
+  <p><%= form.label :name %></p>
+  <p><%= form.text_field :name %><%= form.submit :追加 %></p>
+  </div>
 <% end %>

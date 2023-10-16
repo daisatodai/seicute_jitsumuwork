@@ -48,8 +48,8 @@ class InvoicesController < ApplicationController
       session[:refresh_token] = JSON.parse(response.body)["refresh_token"]
     end
     @invoice = Invoice.new
-    5.times {@invoice.invoice_details.build}
-    3.times {@invoice.pictures.build}
+    1.times {@invoice.invoice_details.build}
+    1.times {@invoice.pictures.build}
   end
 
   def create
@@ -62,32 +62,31 @@ class InvoicesController < ApplicationController
     response = connection.get do |request|
       request.options.timeout = 300
       request.headers["Authorization"] = "Bearer #{session[:access_token]}"
-      # request.body = {
-      #   grant_type: "refresh_token",
-      #   client_id: ENV['FREEE_CLIENT_ID'],
-      #   client_secret: ENV['FREEE_CLIENT_SECRET'],
-      #   refresh_token: session[:refresh_token]
-      # }
+      request.body = {
+        grant_type: "refresh_token",
+        client_id: ENV['FREEE_CLIENT_ID'],
+        client_secret: ENV['FREEE_CLIENT_SECRET'],
+        refresh_token: session[:refresh_token]
+      }
     end
     unless response.status == 200
-      redirect_to new_invoice_path, notice: "freeeへの認証が切れたため再接続しました。最初から入力し直してください"; return
+      respond_to do |format|
+        format.turbo_stream { redirect_to new_invoice_path, notice: "freeeへの認証が切れたため再接続しました。最初から入力し直してください" ; return}
+      end
     end
-    # 請求書の保存準備
     @invoice = Invoice.new(invoice_params)
     @invoice.user_id = current_user.id
-    if params[:invoice][:pictures_attributes] # && params[:invoice][:invoice_details_attributes].present?
-      file1 = params[:invoice][:pictures_attributes][:"0"][:image]
+    # 画像保存に先立って、pictures_attributesパラメーターに値が入っているかの確認
+    if params[:invoice][:pictures_attributes]
+      pictures_attributes_numbers = params[:invoice][:pictures_attributes].keys
       files = []
-      files << file1
-      if params[:invoice][:pictures_attributes][:"1"]
-        file2 = params[:invoice][:pictures_attributes][:"1"][:image]
-        files << file2
-        if params[:invoice][:pictures_attributes][:"2"]
-          file3 = params[:invoice][:pictures_attributes][:"2"][:image]
-          files << file3
+      pictures_attributes_numbers.each do |number|
+        if params[:invoice][:pictures_attributes][:"#{number}"][:image]
+          file = params[:invoice][:pictures_attributes][:"#{number}"][:image]
+          files << file
         end
       end
-      # 請求書の保存が成功した場合
+      # 請求書の保存が成功した場合の処理
       if @invoice.save
         # Google Driveへの画像連携処理開始
         # 格納先のフォルダーの存在を確認し、なければ作成する
@@ -114,7 +113,6 @@ class InvoicesController < ApplicationController
         file_upload_checks = []
         files.length.times do |i|
           filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{i + 1}"
-          file_ext = File.extname(filename)
           file_upload_checks << @drive.file_by_title(filename)
         end
         if file_upload_checks.include?(nil)
@@ -123,10 +121,11 @@ class InvoicesController < ApplicationController
           pictures = Picture.where(invoice_id: Invoice.last.id)
           pictures.each.with_index do |picture, index|
             filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
-            file_ext = File.extname(filename)
             file = @drive.file_by_title(filename)
             picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}")
           end
+          invoice = Invoice.last
+          invoice.update(google_drive_api_status: 1)
         end
         # freeeへの請求書内容連携処理開始
         deal_url  = "https://api.freee.co.jp/api/1/deals"
@@ -160,35 +159,43 @@ class InvoicesController < ApplicationController
             "details": details
           }.to_json
         end
-        # binding.pry
         # freeeへの請求書内容連携処理終了
         # 成功したかのチェック
-        if response.status == 201 # 成功した場合invoicesテーブルに保存されたレコードをすぐに呼び出して、api_statusカラムを更新する
-          status = 201
+        if response.status == 201
           invoice = Invoice.last
-          invoice.update(api_status: 1)
+          invoice.update(freee_api_status: 1)
         else
-          error = response.body.force_encoding("UTF-8")
+          if response.status == 400 || response.status == 404 || response.status == 500
+            error = JSON.parse(response.body.force_encoding("UTF-8"))
+            error1 = error.values[1][0]["messages"][0]
+            error2 = error.values[1][1]["messages"][0]
+          elsif response.status == 401 || response.status == 403
+            error = JSON.parse(response.body.force_encoding("UTF-8"))
+            error1 = error["message"]
+            error2 = error.values["messages"]
+          end
+          errors = []
+          errors << error1
+          errors << error2
+          invoice = Invoice.last
+          invoice.update(error: error1+error2)
         end
+        status = response.status
         # 最終判定
         if file == nil && status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。以下のエラーメッセージを管理者に伝えてください。#{response.body}"
+          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
         elsif file == nil
           redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
         elsif status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。freeeへの連携に失敗しました。以下のエラーメッセージを管理者に伝えてください。#{response.body}"
+          redirect_to invoices_path, notice: "請求書を登録しました。freeeへの連携に失敗しました。#{error1}#{error2}"
         else
-          redirect_to invoices_path, notice: "請求書を登録しました"
+          redirect_to invoices_path, notice: "請求書を登録しました。"
         end
       # 請求書の保存が失敗した場合
       else
         flash[:danger] = "請求書の登録に失敗しました"
         render :new
       end
-    # 画像が選択されていない場合
-    else
-      flash[:danger] = "画像か内訳が空欄です"
-      render :new
     end
   end
 

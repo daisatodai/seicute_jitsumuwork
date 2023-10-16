@@ -1,7 +1,13 @@
 <h1>請求書詳細</h1>
 <%= link_to "編集する", edit_invoice_path %>
-<% @pictures.each do |picture| %>
-  <%= image_tag picture.google_drive_url %>
+<% @pictures.each.with_index do |picture, index| %>
+  <% if picture.google_drive_url %>
+    <%= link_to picture.google_drive_url do %>
+      <%= image_tag picture.google_drive_url %>
+    <% end %>
+  <% else %>
+    <%= "画像#{index + 1}を表示できません" %>
+  <% end %>
 <% end %>
 <table>
   <tr>
@@ -40,11 +46,30 @@
   <% end %>
 
   <tr>
-    <th>freee連携</th>
+    <th>
+      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0" do %>
+        <i class="fa-brands fa-google-drive"></i>
+      <% end %>
+    </th>
+    <th>
+      <%= link_to "https://secure.freee.co.jp/deals" do %>
+        <%= image_tag "freee_logo.png", size: "45x45" %>
+      <% end %>
+    </th>
     <th>登録者</th>
   </tr>
   <tr>
-    <td><%= @invoice.api_status %></td>
+    <% if @invoice.google_drive_api_status == "✖️" %>
+      <td><%= @invoice.google_drive_api_status %>手動でアップロードしてください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。</td>
+    <% else %>
+      <td><%= @invoice.google_drive_api_status %></td>
+
+    <% end %>
+    <% if @invoice.error %>
+      <td><%= @invoice.freee_api_status %><%= @invoice.error %></td>
+    <% else %>
+      <td><%= @invoice.freee_api_status %></td>
+    <% end %>
     <td><%= @invoice.user.email %>さん</td>
   </tr>
 </table>

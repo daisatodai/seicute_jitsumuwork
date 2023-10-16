@@ -4,7 +4,9 @@ class CreateInvoices < ActiveRecord::Migration[6.1]
       t.string :subject, null: false
       t.date :issued_on, null: false
       t.date :due_on, null: false
-      t.integer :api_status, null: false, default: 0
+      t.text :error
+      t.integer :google_drive_api_status, null: false, default: 0
+      t.integer :freee_api_status, null: false, default: 0
       t.text :memo
 
       t.timestamps

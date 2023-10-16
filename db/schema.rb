@@ -29,7 +29,9 @@ ActiveRecord::Schema.define(version: 2023_10_16_061258) do
     t.string "subject", null: false
     t.date "issued_on", null: false
     t.date "due_on", null: false
-    t.integer "api_status", default: 0, null: false
+    t.text "error"
+    t.integer "google_drive_api_status", default: 0, null: false
+    t.integer "freee_api_status", default: 0, null: false
     t.text "memo"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

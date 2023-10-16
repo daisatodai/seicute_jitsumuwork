@@ -16,14 +16,12 @@ end
 
 # 請求書
 subjects = ["SNS代行費", "オフィス用品代", "サービス利用費"]
-# sns_contents = ["原稿執筆料(企画立案〜構成執筆〜執筆〜納品)", "原稿入稿料(8月)", "SNS(Twitter)運用費(8月))", "明日の予習する", "技術記事を読む"]
-# office_contents = ["掃除機かける", "エアコンフィルターの清掃", "買い物に行く", "風呂掃除する", "洗濯する"]
-# service_contents = ["Wantedlyで企業探しする", "面接練習する", "履歴書と職務経歴書をブラッシュアップする"]
 issued_on_from = Date.parse('2023-01-01 00:00:00')
 issued_on_to = Date.parse('2023-06-30 00:00:00')
 due_on_from = Date.parse('2023-07-01 00:00:00')
 due_on_to = Date.parse('2023-12-31 00:00:00')
-api_statuses = [0, 1]
+google_drive_api_statuses = [0, 1]
+freee_api_statuses = [0, 1]
 memos = ["", "振込時期変更の可能性あり", "金額の間違っていないか先方に確認中", "請求取り消しの可能性あり"]
 requestor_ids = (1..6).to_a
 user_ids = (1..10).to_a
@@ -32,9 +30,38 @@ user_ids = (1..10).to_a
   subject = subjects.sample
   issued_on = rand(issued_on_from..issued_on_to)
   due_on = rand(due_on_from..due_on_to)
-  api_status = api_statuses.sample
+  google_drive_api_status = google_drive_api_statuses.sample
+  freee_api_status = freee_api_statuses.sample
   memo = memos.sample
   requestor_id = requestor_ids.sample
   user_id = user_ids.sample
-  Invoice.create!(subject: subject, issued_on: issued_on, due_on: due_on, api_status: api_status, memo: memo, requestor_id: requestor_id, user_id: user_id)
+  Invoice.create!(subject: subject, issued_on: issued_on, due_on: due_on, google_drive_api_status: google_drive_api_status, freee_api_status: freee_api_status, memo: memo, requestor_id: requestor_id, user_id: user_id)
+end
+
+# 請求書詳細
+details_subjects = ["原稿執筆料", "入稿料", "SNS(Twitter)運用費", "事務用品代", "クラウド利用費"]
+unit_prices = [1000..100000].to_a
+quantities = [1..20].to_a
+invoice_ids = (1..15).to_a
+
+details_subject = details_subjects.sample
+unit_price = unit_prices.sample
+quantity = quantities.sample
+invoice_id = invoice_ids.sample
+
+40.times do |n|
+  InvoiceDetail.create!(subject: details_subject, unit_price: unit_price, quantity: quantity, invoice_id: invoice_id)
+end
+
+# 請求書画像
+details_subjects = ["原稿執筆料", "入稿料", "SNS(Twitter)運用費", "事務用品代", "クラウド利用費"]
+images = ["sample_invoice.png", "sample_invoice2.png"]
+invoice_ids = (1..15).to_a
+
+image = images.sample
+google_drive_url = "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0"
+invoice_id = invoice_ids.sample
+
+40.times do |n|
+  Picture.create!(image:File.open("./public/images/#{image}"), google_drive_url: google_drive_url,invoice_id: invoice_id)
 end

@@ -17,13 +17,12 @@ gem 'sorcery'
 gem 'turbolinks', '~> 5'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'webpacker', '~> 5.0'
-gem 'sorcery'
-gem 'dotenv-rails'
 gem 'faraday', '~> 1.10', '>= 1.10.3'
 gem 'faraday_middleware'
 gem 'faraday-multipart'
 gem 'google_drive', '~> 3.0', '>= 3.0.7'
 gem 'multipart-post', '~> 2.3'
+gem "cocoon"
 
 gem 'bootsnap', '>= 1.4.4', require: false
 

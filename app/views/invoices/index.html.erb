@@ -9,15 +9,25 @@
   <tr>
     <th>支払い期日</th>
     <th>件名</th>
-    <th>請求元</th>
-    <th>freee連携</th>
+    <th><%= link_to "請求元", requestors_path %></th>
+    <th>
+      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0" do %>
+        <i class="fa-brands fa-google-drive"></i>
+      <% end %>
+    </th>
+    <th>
+      <%= link_to "https://secure.freee.co.jp/deals" do %>
+        <%= image_tag "freee_logo.png", size: "45x45" %>
+      <% end %>
+    </th>
   </tr>
   <% @invoices.each do |invoice| %>
     <tr>
       <td><%= l invoice.due_on, format: :default %></td>
       <td><%= link_to invoice.subject, invoice_path(invoice.id) %></td>
       <td><%= invoice.requestor.name %></td>
-      <td><%= invoice.api_status %></td>
+      <td><%= invoice.google_drive_api_status %></td>
+      <td><%= invoice.freee_api_status %></td>
     </tr>
   <% end %>
 </table>

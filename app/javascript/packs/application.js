@@ -11,3 +11,9 @@ import "channels"
 Rails.start()
 Turbolinks.start()
 ActiveStorage.start()
+
+require("jquery")
+require("@nathanvda/cocoon")
+
+import '@fortawesome/fontawesome-free/js/all';
+import "./form_limit"

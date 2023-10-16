@@ -13,8 +13,10 @@ ja:
         due_on: 期日
         api_status: freee連携
         memo: メモ
+        pictures: 画像
+        invoice_details: 詳細
       invoice_detail:
-        subject: 内訳
+        subject: 件名
         unit_price: 単価
         quantity: 数量
       picture:
