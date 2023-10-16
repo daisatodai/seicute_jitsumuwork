@@ -1,0 +1,12 @@
+<h1>請求元一覧</h1>
+<table>
+  <tr>
+    <th>請求元</th>
+  </tr>
+<% @requestors.each do |requestor| %>
+  <tr>
+    <td><%= requestor.name %></td>
+  </tr>
+<% end %>
+</table>
+<%= link_to "請求元の登録", new_requestor_path %>

@@ -1,0 +1,29 @@
+ja:
+  activerecord:
+    models:
+      invoice: 請求書
+      invoice_detail: 詳細
+      picture: 画像
+      requestor: 請求元
+      user: ユーザー
+    attributes:
+      invoice:
+        subject: 件名
+        issued_on: 発行日
+        due_on: 期日
+        api_status: freee連携
+        memo: メモ
+      invoice_detail:
+        subject: 内訳
+        unit_price: 単価
+        quantity: 数量
+      picture:
+        image: 画像
+      requestor:
+        name: 請求元
+      user:
+        title: タイトル
+        email: メールアドレス
+        password: パスワード
+        password_confirmation: パスワード確認
+        role: ユーザー種別
