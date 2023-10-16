@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.0.1'
-
 gem 'carrierwave', '~> 3.0'
 gem 'dotenv-rails'
 gem 'jbuilder', '~> 2.7'
@@ -18,7 +17,8 @@ gem 'sorcery'
 gem 'turbolinks', '~> 5'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 gem 'webpacker', '~> 5.0'
-
+gem 'sorcery'
+gem 'dotenv-rails'
 gem 'faraday', '~> 1.10', '>= 1.10.3'
 gem 'faraday_middleware'
 gem 'faraday-multipart'

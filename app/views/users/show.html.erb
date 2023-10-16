@@ -1,0 +1,18 @@
+<h1>請求書詳細</h1>
+<% @invoice.pictures.each do |picture| %>
+  <p>画像: <%= image_tag picture.image.url %></p>
+<% end %>
+
+<p>発行日: <%= @invoice.issued_on %></p>
+<p>請求元: <%= Requestor.find(@invoice.requestor_id).name %></p>
+<p>件名: <%= @invoice.subject %></p>
+<p>支払い期日: <%= @invoice.due_on %></p>
+<p>メモ: <%= @invoice.memo %></p>
+<hr>
+
+<% @invoice.invoice_details.each do |invoice_detail| %>
+  <p>内訳: <%= invoice_detail.subject %></p>
+  <p>数量: <%= invoice_detail.quantity %></p>
+  <p>単価: <%= invoice_detail.unit_price %></p>
+<% end %>
+<p>freee連携: <%= @invoice.api_status %></p>

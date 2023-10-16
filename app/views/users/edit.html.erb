@@ -1,0 +1,32 @@
+<h1>ユーザー編集</h1>
+<%= form_with(model: @user, local: true) do |f| %>
+  <% if @user.errors.any? %>
+    <div id="error_explanation">
+      <%= @user.errors.count %><%= t('.errors') %>
+      <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <p>
+  <%= f.label :email %>
+  <%= f.email_field :email %>
+  </P>
+  <P>
+  <%= f.label :password %>
+  <%= f.password_field :password %>
+  </P>
+  <P>
+  <%= f.label :password_confirmation %>
+  <%= f.password_field :password_confirmation %>
+  </P>
+  <P>
+  <%= f.label :role %>
+  <%= f.select :role, User.roles.keys.to_a %>
+  </P>
+  <br>
+  <%= f.submit %>
+<% end %>
+<%= link_to "戻る", users_path %>

@@ -1,0 +1,28 @@
+<h1>請求書一覧</h1>
+<%= form_with scope: :search, url: searches_search_path, method: :get, local: true do |form| %>
+  <%= form.date_select :due_on, include_blank: "日付..." %>
+  <%= form.search_field :subject, placeholder: "件名..." %>
+  <%= form.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] }, include_blank: "請求元..." %>
+  <%= form.submit "検索する" %>
+<% end %>
+<table>
+  <tr>
+    <th>支払い期日</th>
+    <th>件名</th>
+    <th>請求元</th>
+    <th>freee連携</th>
+  </tr>
+  <% @invoices.each do |invoice| %>
+    <tr>
+      <td><%= l invoice.due_on, format: :default %></td>
+      <td><%= link_to invoice.subject, invoice_path(invoice.id) %></td>
+      <td><%= invoice.requestor.name %></td>
+      <td><%= invoice.api_status %></td>
+    </tr>
+  <% end %>
+</table>
+
+
+<%# @files.each do |file| %>
+  <%#= image_tag "https://drive.google.com/uc?id=#{file.id}" %>
+<%# end %>

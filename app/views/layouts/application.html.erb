@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
+    <%= favicon_link_tag('favicon.ico') %>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
   <body>
+    <%= link_to "ユーザー一覧", users_path %>
+    <% if logged_in? %>
+      <%= link_to "ログアウト", session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} %>
+    <% end %>
+    <% flash.each do |key, value| %>
+      <%= content_tag(:p, value, class: "alert alert-#{key}") %>
+    <% end %>
     <%= yield %>
+  </body>
+  <%= link_to "請求書一覧", invoices_path %>
+  <%= link_to "請求書登録", new_invoice_path %>
   </body>
 </html>

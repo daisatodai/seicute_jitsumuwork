@@ -1,0 +1,13 @@
+<h1>ログイン</h1>
+<%= form_with(url: sessions_path, local: true) do |f| %>  
+  <p>
+  <%= f.label :メールアドレス %>
+  <%= f.email_field :email %>
+  </P>
+  <P>
+  <%= f.label :パスワード %>
+  <%= f.password_field :password %>
+  </P>
+  <br>
+  <%= f.submit "ログイン" %>
+<% end %>
