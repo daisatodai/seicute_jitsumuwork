@@ -37,6 +37,8 @@ class SearchesController < ApplicationController
         requestor_id = params[:search][:requestor_id]
         @invoices = @invoices.where(requestor_id: requestor_id)
       end
+      flash.now[:info] = "#{@invoices.count}件ヒットしました"
     end
+    @invoices = @invoices.page(params[:page]).per(15)
   end
 end

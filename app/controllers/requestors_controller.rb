@@ -13,10 +13,10 @@ class RequestorsController < ApplicationController
   def create
     @requestor = Requestor.new(requestor_params)
     if @requestor.save
-      flash[:success] = "請求元を登録しました"
-      redirect_to new_invoice_path
+      flash[:success] = "#{@requestor.name}を登録しました"
+      redirect_to requestors_path
     else
-      flash[:danger] = "請求元の登録に失敗しました"
+      flash.now[:danger] = "請求元の登録に失敗しました"
       render :new
     end
   end

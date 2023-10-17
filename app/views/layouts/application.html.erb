@@ -12,11 +12,11 @@
 
   <body>
     <%= link_to users_path do %>
-      <i class="fa-solid fa-users fa-xl"></i>
+      <i class="fa-solid fa-users fa-xl"></i> ユーザー
     <% end %>
     <% if logged_in? %>
       <%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>
-        <i class="fa-solid fa-right-from-bracket fa-xl"></i>
+        <i class="fa-solid fa-right-from-bracket fa-xl"></i> ログアウト
       <% end %>
     <% end %>
     <% flash.each do |key, value| %>
@@ -25,10 +25,10 @@
     <%= yield %>
   </body>
   <%= link_to invoices_path do %>
-    <i class="fa-solid fa-list fa-xl"></i>
+    <i class="fa-solid fa-list fa-xl"></i> 請求書一覧
   <% end %>
   <%= link_to new_invoice_path do %>
-    <i class="fa-solid fa-file-invoice fa-xl"></i>
+    <i class="fa-solid fa-file-invoice fa-xl"></i> 登録する
   <% end %>
   </body>
 </html>

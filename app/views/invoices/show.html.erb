@@ -1,6 +1,9 @@
 <h1>請求書詳細</h1>
 <%= link_to edit_invoice_path do %>
-  <i class="fa-solid fa-file-pen fa-lg"></i>
+  <i class="fa-solid fa-file-pen fa-lg"></i> 編集する
+<% end %>
+<%= link_to invoice_path(@invoice.id), method: :delete, data: {confirm: "削除しますか"} do %>
+  <i class="fa-solid fa-trash fa-lg"></i> 削除する
 <% end %>
 <% @pictures.each.with_index do |picture, index| %>
   <% if picture.google_drive_url %>
@@ -49,12 +52,12 @@
 
   <tr>
     <th>
-      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0" do %>
+      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0", target: :_blank, rel: "noopener noreferrer" do %>
         <i class="fa-brands fa-google-drive"></i>
       <% end %>
     </th>
     <th>
-      <%= link_to "https://secure.freee.co.jp/deals" do %>
+      <%= link_to "https://secure.freee.co.jp/deals", target: :_blank, rel: "noopener noreferrer" do %>
         <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
     </th>

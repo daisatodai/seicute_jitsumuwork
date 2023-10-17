@@ -16,7 +16,7 @@
       <%= render "picture_fields", f: picture %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "画像を追加➕", f, :pictures %>
+      <%= link_to_add_association "➕ 画像を追加", f, :pictures %>
     </div>
   </div>
   <%#= turbo_frame_tag "first_turbo_frame" do %>
@@ -48,7 +48,7 @@
       <%= render "invoice_detail_fields", f: detail %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "詳細を追加➕", f, :invoice_details %>
+      <%= link_to_add_association "➕ 詳細を追加", f, :invoice_details %>
     </div>
   </div>
   <p><%= f.submit %></p>

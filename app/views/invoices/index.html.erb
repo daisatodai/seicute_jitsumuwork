@@ -2,7 +2,7 @@
 <%= form_with scope: :search, url: searches_search_path, method: :get, local: true do |form| %>
   <div>
     <%= button_tag type: "submit" do %>
-      <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+      <i class="fa-solid fa-magnifying-glass fa-lg"></i> 検索する
     <% end %>
   </div>
   <%= form.date_select :due_on, include_blank: "日付..." %>
@@ -16,12 +16,12 @@
     <th>件名</th>
     <th><%= link_to "請求元", requestors_path %></th>
     <th>
-      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0" do %>
+      <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0", target: :_blank, rel: "noopener noreferrer" do %>
         <i class="fa-brands fa-google-drive"></i>
       <% end %>
     </th>
     <th>
-      <%= link_to "https://secure.freee.co.jp/deals" do %>
+      <%= link_to "https://secure.freee.co.jp/deals", target: :_blank, rel: "noopener noreferrer" do %>
         <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
     </th>
@@ -45,8 +45,3 @@
     </tr>
   <% end %>
 </table>
-
-
-<%# @files.each do |file| %>
-  <%#= image_tag "https://drive.google.com/uc?id=#{file.id}" %>
-<%# end %>
