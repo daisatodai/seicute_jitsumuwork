@@ -1,10 +1,15 @@
 <h1>請求書一覧</h1>
 <%= form_with scope: :search, url: searches_search_path, method: :get, local: true do |form| %>
+  <div>
+    <%= button_tag type: "submit" do %>
+      <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+    <% end %>
+  </div>
   <%= form.date_select :due_on, include_blank: "日付..." %>
   <%= form.search_field :subject, placeholder: "件名..." %>
   <%= form.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] }, include_blank: "請求元..." %>
-  <%= form.submit "検索する" %>
 <% end %>
+<%= paginate @invoices %>
 <table>
   <tr>
     <th>支払い期日</th>
@@ -17,7 +22,7 @@
     </th>
     <th>
       <%= link_to "https://secure.freee.co.jp/deals" do %>
-        <%= image_tag "freee_logo.png", size: "45x45" %>
+        <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
     </th>
   </tr>
@@ -26,8 +31,17 @@
       <td><%= l invoice.due_on, format: :default %></td>
       <td><%= link_to invoice.subject, invoice_path(invoice.id) %></td>
       <td><%= invoice.requestor.name %></td>
-      <td><%= invoice.google_drive_api_status %></td>
-      <td><%= invoice.freee_api_status %></td>
+      <%# binding.pry %>
+      <% if invoice.google_drive_api_status == "未連携" %>
+        <td><%= image_tag "triangle-exclamation-solid.svg" %></td>
+      <% else %>
+        <td><%= image_tag "square-check-regular.svg" %></td>
+      <% end %>
+      <% if invoice.freee_api_status == "未連携" %>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "16x16" %></td>
+      <% else %>
+        <td><%= image_tag "square-check-regular.svg", size: "18x18" %></td>
+      <% end %>
     </tr>
   <% end %>
 </table>

@@ -6,6 +6,7 @@ class InvoicesController < ApplicationController
     # reset_session
     auth_google_drive
     @invoices = Invoice.all.includes(:requestor)
+    @invoices = @invoices.page(params[:page]).per(15)
   end
 
   def new
@@ -70,9 +71,7 @@ class InvoicesController < ApplicationController
       }
     end
     unless response.status == 200
-      respond_to do |format|
-        format.turbo_stream { redirect_to new_invoice_path, notice: "freeeへの認証が切れたため再接続しました。最初から入力し直してください" ; return}
-      end
+      redirect_to new_invoice_path, notice: "freeeへの認証が切れたため再接続しました。ログインし直してください" ; return
     end
     @invoice = Invoice.new(invoice_params)
     @invoice.user_id = current_user.id

@@ -1,5 +1,7 @@
 <h1>請求書詳細</h1>
-<%= link_to "編集する", edit_invoice_path %>
+<%= link_to edit_invoice_path do %>
+  <i class="fa-solid fa-file-pen fa-lg"></i>
+<% end %>
 <% @pictures.each.with_index do |picture, index| %>
   <% if picture.google_drive_url %>
     <%= link_to picture.google_drive_url do %>
@@ -53,7 +55,7 @@
     </th>
     <th>
       <%= link_to "https://secure.freee.co.jp/deals" do %>
-        <%= image_tag "freee_logo.png", size: "45x45" %>
+        <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
     </th>
     <th>登録者</th>

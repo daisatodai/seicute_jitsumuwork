@@ -10,7 +10,7 @@
       </ul>
     </div>
   <% end %>
-  <div class="pictures">
+  <div class="form-group">
     <%= f.fields_for :pictures do |picture| %>
     <p><%= f.label "画像" %></p>
       <%= render "picture_fields", f: picture %>

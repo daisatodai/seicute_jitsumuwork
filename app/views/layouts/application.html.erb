@@ -11,16 +11,24 @@
   </head>
 
   <body>
-    <%= link_to "ユーザー一覧", users_path %>
+    <%= link_to users_path do %>
+      <i class="fa-solid fa-users fa-xl"></i>
+    <% end %>
     <% if logged_in? %>
-      <%= link_to "ログアウト", session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} %>
+      <%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>
+        <i class="fa-solid fa-right-from-bracket fa-xl"></i>
+      <% end %>
     <% end %>
     <% flash.each do |key, value| %>
       <%= content_tag(:p, value, class: "alert alert-#{key}") %>
     <% end %>
     <%= yield %>
   </body>
-  <%= link_to "請求書一覧", invoices_path %>
-  <%= link_to "請求書登録", new_invoice_path %>
+  <%= link_to invoices_path do %>
+    <i class="fa-solid fa-list fa-xl"></i>
+  <% end %>
+  <%= link_to new_invoice_path do %>
+    <i class="fa-solid fa-file-invoice fa-xl"></i>
+  <% end %>
   </body>
 </html>

@@ -14,8 +14,8 @@ class Invoice < ApplicationRecord
   validates :due_on, presence: true
   validates :google_drive_api_status, presence: true
   validates :freee_api_status, presence: true
-  enum google_drive_api_status: { ✖️: 0, ○: 1 }, _prefix: true
-  enum freee_api_status: { ✖️: 0, ○: 1 }, _prefix: true
+  enum google_drive_api_status: { 未連携: 0, 連携済: 1 }, _prefix: true
+  enum freee_api_status: { 未連携: 0, 連携済: 1 }, _prefix: true
   scope :search_by_due_on_year, -> (from, to){ where(due_on: from..to)}
   scope :search_by_due_on_month, -> (from, to){ where(due_on: from..to)}
   scope :search_by_due_on_date, -> (due_on){ where(due_on: "#{due_on}")}

@@ -23,6 +23,7 @@ gem 'faraday-multipart'
 gem 'google_drive', '~> 3.0', '>= 3.0.7'
 gem 'multipart-post', '~> 2.3'
 gem "cocoon"
+gem 'kaminari'
 
 gem 'bootsnap', '>= 1.4.4', require: false
 
