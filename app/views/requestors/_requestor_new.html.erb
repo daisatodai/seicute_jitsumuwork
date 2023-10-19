@@ -1,0 +1,12 @@
+<div id="error_expanation">
+  <% if @requestor.errors.any? %>
+    <%= @requestor.errors.count %>件のエラーがあります。
+    <ul>
+      <% @requestor.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% else %>
+    追加しました 
+  <% end %>
+<div>

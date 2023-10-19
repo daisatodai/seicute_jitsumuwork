@@ -19,6 +19,7 @@ class InvoicesController < ApplicationController
     # freeeとの疎通確認
     check_freee_connection
     @invoice = Invoice.new
+    @requestor = Requestor.new
     1.times {@invoice.invoice_details.build}
     1.times {@invoice.pictures.build}
   end

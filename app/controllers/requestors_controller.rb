@@ -48,6 +48,13 @@ class RequestorsController < ApplicationController
     end
   end
 
+  def requestor_new
+    if params[:new_requestor_name].present?
+      @requestor = Requestor.new(name: params[:new_requestor_name])
+      @requestor.save
+    end
+  end
+
   private
 
   def requestor_params
