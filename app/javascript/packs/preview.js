@@ -1,13 +1,17 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const file_button = document.querySelector('#board_board_image');
-  const preview_img = document.querySelector('#preview_img');
+function browsePicture(button) {
+  const file = $(button).siblings('.file-field')[0];
+  const preview = $(button).siblings('.preview-field')[0];
 
-  file_button.addEventListener('change', (e) => {
-    let file = e.target.files;
-    let reader = new FileReader() ;
-    reader.readAsDataURL(file[0])
-    reader.onload = function() {
-      preview_img.src = reader.result;
+  file.addEventListener('change', function () {
+    if ( file.files[0] == 0 ) {
+      alert('file not selected');
+    } else {
+      let fr = new FileReader();
+      fr.onload = function () {
+        preview.src = fr.result;
+      }
+      fr.readAsDataURL(file.files[0]);
     }
-    },false);
-});
+  });
+  file.click();
+}

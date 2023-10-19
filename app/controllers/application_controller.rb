@@ -9,7 +9,4 @@ class ApplicationController < ActionController::Base
     redirect_to new_session_path, danger: "ログインしてください"
   end
 
-  def get_name_from_email
-    name = current_user.email.match(/(.*)@/)[1]
-  end
 end

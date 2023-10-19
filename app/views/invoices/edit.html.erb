@@ -13,7 +13,7 @@
   <div class="form-group">
     <%= f.fields_for :pictures do |picture| %>
     <p><%= f.label "画像" %></p>
-      <%= render "picture_fields", f: picture %>
+      <%= render "edit_picture_fields", f: picture %>
     <% end %>
     <div class="links">
       <%= link_to_add_association "➕ 画像を追加", f, :pictures %>

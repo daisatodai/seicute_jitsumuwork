@@ -66,4 +66,8 @@ class UsersController < ApplicationController
     end
   end
 
+  def get_name_from_email
+    name = @user.email.match(/(.*)@/)[1]
+  end
+
 end

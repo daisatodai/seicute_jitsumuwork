@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     user = login(params[:email], params[:password])
     if user
       name = current_user.email.match(/(.*)@/)[1]
-      redirect_back_or_to root_path, notice: "おかえりなさい、#{get_name_from_email}さん"
+      redirect_back_or_to root_path, notice: "おかえりなさい、#{name}さん"
 
     else
       flash.now[:danger] = "ログインに失敗しました"

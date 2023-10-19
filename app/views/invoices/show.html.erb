@@ -8,7 +8,7 @@
 <% @pictures.each.with_index do |picture, index| %>
   <% if picture.google_drive_url %>
     <%= link_to picture.google_drive_url do %>
-      <%= image_tag picture.google_drive_url %>
+      <%= image_tag picture.google_drive_url, size: "250x340" %>
     <% end %>
   <% else %>
     <%= "画像#{index + 1}を表示できません" %>
