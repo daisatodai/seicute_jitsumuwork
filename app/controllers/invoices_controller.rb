@@ -1,4 +1,5 @@
 class InvoicesController < ApplicationController
+  before_action :admin?, only: %i[edit update destroy]
   before_action :auth_google_drive
   before_action :get_freee_authentication_code, only: %i[index new edit]
   
@@ -45,20 +46,22 @@ class InvoicesController < ApplicationController
         # 格納先のフォルダーの存在を確認し、なければ作成する
         top_folder = @drive.file_by_id(ENV['GOOGLE_DRIVE_TOP_LEVEL_FOLDER_ID'])
         # binding.pry
-        if top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-          second_level_folder = top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-          if second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
-            third_level_folder = second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
+        year = params[:invoice][:issued_on][0, 4] + "年"
+        month = params[:invoice][:issued_on][5, 2] + "月"
+        if top_folder.file_by_title(year)
+          second_level_folder = top_folder.file_by_title(year)
+          if second_level_folder.file_by_title(month)
+            third_level_folder = second_level_folder.file_by_title(month)
           else
-            third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+            third_level_folder = second_level_folder.create_subfolder(month)
           end
         else
-          second_level_folder = top_folder.create_subfolder(params[:invoice]["issued_on(1i)"]+"年")
-          third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+          second_level_folder = top_folder.create_subfolder(year)
+          third_level_folder = second_level_folder.create_subfolder(month)
         end
         # 画像ファイルのアップロード処理
         files.each.with_index do |file, index|
-          filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+          filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
           file_ext = File.extname(filename)
           file_find = third_level_folder.upload_from_file(File.absolute_path(file), filename, convert: false)
           # binding.pry
@@ -67,7 +70,7 @@ class InvoicesController < ApplicationController
         # 成功したかのチェック
         file_upload_checks = []
         files.length.times do |i|
-          filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{i + 1}"
+          filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{i + 1}"
           file_upload_checks << @drive.file_by_title(filename)
         end
         if file_upload_checks.include?(nil)
@@ -75,7 +78,7 @@ class InvoicesController < ApplicationController
         else # 成功した場合picturesテーブルに保存されたレコードをすぐに呼び出して、google_drive_urlカラムを更新する
           pictures = Picture.where(invoice_id: @invoice.id)
           pictures.each.with_index do |picture, index|
-            filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+            filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
             file = @drive.file_by_title(filename)
             picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}", google_drive_file_id: file.id)
           end
@@ -213,20 +216,22 @@ class InvoicesController < ApplicationController
       pictures = Picture.where(invoice_id: @invoice.id)
       # 格納先のフォルダーの存在を確認し、なければ作成する
       top_folder = @drive.file_by_id(ENV['GOOGLE_DRIVE_TOP_LEVEL_FOLDER_ID'])
-      if top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-        second_level_folder = top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-        if second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
-          third_level_folder = second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
+        year = params[:invoice][:issued_on][0, 4] + "年"
+        month = params[:invoice][:issued_on][5, 2] + "月"
+        if top_folder.file_by_title(year)
+          second_level_folder = top_folder.file_by_title(year)
+          if second_level_folder.file_by_title(month)
+            third_level_folder = second_level_folder.file_by_title(month)
+          else
+            third_level_folder = second_level_folder.create_subfolder(month)
+          end
         else
-          third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+          second_level_folder = top_folder.create_subfolder(year)
+          third_level_folder = second_level_folder.create_subfolder(month)
         end
-      else
-        second_level_folder = top_folder.create_subfolder(params[:invoice]["issued_on(1i)"]+"年")
-        third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
-      end
       # 画像ファイルのアップロード処理
       pictures.each.with_index do |picture, index|
-        picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+        picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
         file_ext = File.extname(picture_name)
         # binding.pry
         file = picture.image.instance_variable_get(:@file)
@@ -237,7 +242,7 @@ class InvoicesController < ApplicationController
       # 成功したかのチェック
       file_upload_checks = []
       files.length.times do |i|
-        picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{i + 1}"
+        picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{i + 1}"
         file_upload_checks << @drive.file_by_title(picture_name)
       end
       if file_upload_checks.include?(nil)
@@ -247,7 +252,7 @@ class InvoicesController < ApplicationController
       else # 成功した場合picturesテーブルに保存されたレコードをすぐに呼び出して、google_drive_urlカラムを更新する
         pictures = Picture.where(invoice_id: @invoice.id)
         pictures.each.with_index do |picture, index|
-          picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+          picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
           file = @drive.file_by_title(picture_name)
           picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}")
           picture.update(google_drive_file_id: file.id)

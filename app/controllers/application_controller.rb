@@ -9,4 +9,10 @@ class ApplicationController < ActionController::Base
     redirect_to new_session_path, danger: "ログインしてください"
   end
 
+  def admin?
+    unless current_user.role == "管理者"
+      redirect_to invoices_path, notice: "許可されていないアクセスです"
+    end
+  end
+  
 end

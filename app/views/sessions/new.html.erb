@@ -2,7 +2,7 @@
 <%= form_with(url: sessions_path, local: true) do |f| %>  
   <p>
   <%= f.label :メールアドレス %>
-  <%= f.email_field :email %>
+  <%= f.email_field :email, style: "ime-mode:disabled" %>
   </P>
   <P>
   <%= f.label :パスワード %>

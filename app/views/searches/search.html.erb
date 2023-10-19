@@ -7,7 +7,7 @@
     <%= link_to "結果をクリア", invoices_path %>
   </div>
   <%= form.date_select :due_on, include_blank: "日付..." %>
-  <%= form.search_field :subject, placeholder: "件名..." %>
+  <%= form.search_field :subject, placeholder: "件名...", style: "ime-mode:active" %>
   <%= form.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] }, include_blank: "請求元..." %>
 <% end %>
 <%= paginate @invoices %>

@@ -1,4 +1,5 @@
 class RequestorsController < ApplicationController
+  before_action :admin?, only: %i[edit update destroy]
 
   def index
     @requestors = Requestor.all

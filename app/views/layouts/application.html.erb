@@ -11,10 +11,12 @@
   </head>
 
   <body>
-    <%= link_to users_path do %>
-      <i class="fa-solid fa-users fa-xl"></i> ユーザー
-    <% end %>
     <% if logged_in? %>
+     <% if current_user.role == "管理者" %>
+        <%= link_to users_path do %>
+          <i class="fa-solid fa-users fa-xl"></i> ユーザー
+        <% end %>
+      <% end %>
       <%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>
         <i class="fa-solid fa-right-from-bracket fa-xl"></i> ログアウト
       <% end %>

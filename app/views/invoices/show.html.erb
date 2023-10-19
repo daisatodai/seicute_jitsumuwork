@@ -1,9 +1,11 @@
 <h1>請求書詳細</h1>
-<%= link_to edit_invoice_path do %>
-  <i class="fa-solid fa-file-pen fa-lg"></i> 編集する
-<% end %>
-<%= link_to invoice_path(@invoice.id), method: :delete, data: {confirm: "削除しますか"} do %>
-  <i class="fa-solid fa-trash fa-lg"></i> 削除する
+<% if current_user.role == "管理者" %>
+  <%= link_to edit_invoice_path do %>
+    <i class="fa-solid fa-file-pen fa-lg"></i> 編集する
+  <% end %>
+  <%= link_to invoice_path(@invoice.id), method: :delete, data: {confirm: "削除しますか"} do %>
+    <i class="fa-solid fa-trash fa-lg"></i> 削除する
+  <% end %>
 <% end %>
 <% @pictures.each.with_index do |picture, index| %>
   <% if picture.google_drive_url %>
