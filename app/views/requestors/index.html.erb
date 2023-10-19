@@ -1,12 +1,20 @@
 <h1>請求元一覧</h1>
+<%= link_to new_requestor_path do %>
+  <i class="fa-solid fa-building fa-xl"></i> 登録する
+<% end %>
+<%= paginate @requestors %>
 <table>
   <tr>
     <th>請求元</th>
   </tr>
 <% @requestors.each do |requestor| %>
   <tr>
-    <td><%= requestor.name %></td>
+    <td><%= link_to requestor.name, edit_requestor_path(requestor.id) %></td>
+    <td>
+      <%= link_to requestor_path(requestor.id), method: :delete, data: {confirm: "削除しますか"} do %>
+        <i class="fa-solid fa-trash"></i>
+      <% end %>
+    </td>
   </tr>
 <% end %>
 </table>
-<%= link_to "請求元の登録", new_requestor_path %>

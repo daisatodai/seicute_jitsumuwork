@@ -29,8 +29,11 @@ ActiveRecord::Schema.define(version: 2023_10_16_061258) do
     t.string "subject", null: false
     t.date "issued_on", null: false
     t.date "due_on", null: false
-    t.integer "api_status", default: 0, null: false
+    t.text "error"
+    t.integer "google_drive_api_status", default: 0, null: false
+    t.integer "freee_api_status", default: 0, null: false
     t.text "memo"
+    t.bigint "freee_deal_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "requestor_id", null: false
@@ -42,6 +45,7 @@ ActiveRecord::Schema.define(version: 2023_10_16_061258) do
   create_table "pictures", force: :cascade do |t|
     t.text "image", null: false
     t.text "google_drive_url"
+    t.text "google_drive_file_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "invoice_id", null: false

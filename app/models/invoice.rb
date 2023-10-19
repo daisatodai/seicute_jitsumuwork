@@ -5,21 +5,27 @@ class Invoice < ApplicationRecord
   accepts_nested_attributes_for :invoice_details, allow_destroy: true, reject_if: lambda {|attributes| attributes['subject'].blank? and attributes['quantity'].blank? and attributes['unit_price'].blank?}
   accepts_nested_attributes_for :pictures, allow_destroy: true, reject_if: lambda {|attributes| attributes['image'].blank?}
   belongs_to :requestor
+  validates_associated :invoice_details
+  validates :invoice_details, presence: true
+  validates_associated :pictures
+  validates :pictures, presence: true
   validates :subject, presence: true
   validates :issued_on, presence: true
   validates :due_on, presence: true
-  validates :api_status, presence: true
-  enum api_status: { 未連携: 0, 完了: 1 }
+  validates :google_drive_api_status, presence: true
+  validates :freee_api_status, presence: true
+  enum google_drive_api_status: { 未連携: 0, 連携済: 1 }, _prefix: true
+  enum freee_api_status: { 未連携: 0, 連携済: 1 }, _prefix: true
   scope :search_by_due_on_year, -> (from, to){ where(due_on: from..to)}
   scope :search_by_due_on_month, -> (from, to){ where(due_on: from..to)}
   scope :search_by_due_on_date, -> (due_on){ where(due_on: "#{due_on}")}
   scope :search_by_subject, -> (subject){ where("subject LIKE ?", "%#{subject}%")}
   # validates :issued_on_before_type_cast, format: { with: /\A(2014)-([01]\d)-([0-3]\d)\z/ }, unless: ->(rec){ rec.due_on_before_type_cast.blank? }
   # validates :due_on_before_type_cast, format: { with: /\A(2014)-([01]\d)-([0-3]\d)\z/ }, unless: ->(rec){ rec.due_on_before_type_cast.blank? }
-  # validate :start_end_check
+  validate :start_end_check
 
   def start_end_check
-    errors.add(:due_on, "は開始日より前の日付は登録できません。") unless self.issued_on <= self.due_on 
+    errors.add(:due_on, "は発行日以降に設定してください") unless self.issued_on <= self.due_on 
   end
 
   def subtotal_price_without_tax

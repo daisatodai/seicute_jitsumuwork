@@ -18,6 +18,7 @@ class UsersController < ApplicationController
 
   def index
     @users = User.all
+    @users = @users.page(params[:page]).per(15)
   end
 
   def edit
@@ -63,6 +64,10 @@ class UsersController < ApplicationController
       flash[:danger] = "許可されていないアクセスです"
       redirect_to invoices_path
     end
+  end
+
+  def get_name_from_email
+    name = @user.email.match(/(.*)@/)[1]
   end
 
 end

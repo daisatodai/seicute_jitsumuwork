@@ -1,15 +1,22 @@
 <h1>ユーザー一覧</h1>
+<%= link_to new_user_path do %>
+  <i class="fa-solid fa-user-plus fa-xl"></i>
+<% end %>
+<%= paginate @users %>
 <table>
-<%= link_to "新規ユーザー登録", new_user_path %>
   <tr>
     <th>メールアドレス</th>
     <th>ユーザー種別</th>
   </tr>
-<% @users.each do |user| %>
-  <tr>
-    <td><%= link_to user.email, edit_user_path(user.id) %></td>
-    <td><%= user.role %></td>
-    <td><%= link_to "削除", user_path(user.id), method: :delete, data: {confirm: "削除しますか"} %></td>
-  </tr>
-<% end %>
+  <% @users.each do |user| %>
+    <tr>
+      <td><%= link_to user.email, edit_user_path(user.id) %></td>
+      <td><%= user.role %></td>
+      <td>
+        <%= link_to user_path(user.id), method: :delete, data: {confirm: "削除しますか"} do %>
+          <i class="fa-solid fa-user-slash"></i>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
 </table>

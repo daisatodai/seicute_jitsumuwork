@@ -1,0 +1,29 @@
+<div class="nested-fields">
+<%= button_tag '選択', type: 'button', onclick: 'browsePicture(this);' %>
+  <%= f.file_field :image, capture: "camera", class: 'file-field', style: 'display:none;' %>
+  <%= image_tag ("no_image.png"), class: 'preview-field', size: "250x340" %>
+  <%= link_to_remove_association image_tag("trash-solid.svg", size: "20x20", class:'icon'), f %>
+</div>
+
+<script type="text/javascript" charset="utf-8">
+
+  function browsePicture(button) {
+    const file = $(button).siblings('.file-field')[0];
+    const preview = $(button).siblings('.preview-field')[0];
+    console.log(file)
+    console.log(preview)
+
+    file.addEventListener('change', function () {
+      if ( file.files[0] == 0 ) {
+        alert('file not selected');
+      } else {
+        let fr = new FileReader();
+        fr.onload = function () {
+          preview.src = fr.result;
+        }
+        fr.readAsDataURL(file.files[0]);
+      }
+    });
+    file.click();
+  }
+</script>

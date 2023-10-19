@@ -28,7 +28,7 @@ class SearchesController < ApplicationController
         to = due_on.end_of_year
         @invoices = @invoices.search_by_due_on_year(from, to)
       elsif params[:search]["due_on(2i)"].present? || params[:search]["due_on(3i)"].present?
-        @invoices = []
+        redirect_to invoices_path, notice: "月だけ、日だけでは検索できません。"
       end
       if params[:search][:subject].present?
         @invoices = @invoices.search_by_subject(params[:search][:subject])
@@ -37,6 +37,12 @@ class SearchesController < ApplicationController
         requestor_id = params[:search][:requestor_id]
         @invoices = @invoices.where(requestor_id: requestor_id)
       end
+      if @invoices.count == 0
+      flash.now[:info] = "ヒットはありません"
+      else
+      flash.now[:info] = "#{@invoices.count}件ヒットしました"
+      end
     end
+    @invoices = @invoices.page(params[:page]).per(15)
   end
 end
