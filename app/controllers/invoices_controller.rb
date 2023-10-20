@@ -9,8 +9,6 @@ class InvoicesController < ApplicationController
     check_freee_connection
     @invoices = Invoice.all.includes(:requestor).order("created_at DESC")
     @invoices = @invoices.page(params[:page]).per(15)
-    # session[:access_token] = "gheiwauhgpawiehgvapweuhvapiuwehva"
-    # session[:authentication_code] = nil
   end
 
   def new
@@ -143,13 +141,17 @@ class InvoicesController < ApplicationController
         status = response.status
         # 最終判定
         if file == nil && status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          flash[:info] = "請求書を登録しました。画像のアップロードに失敗しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          redirect_to invoices_path
         elsif file == nil
-          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。"
+          flash[:info] = "請求書を登録しました。画像のアップロードに失敗しました。"
+          redirect_to invoices_path
         elsif status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          flash[:info] = "請求書を登録しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          redirect_to invoices_path
         else
-          redirect_to invoices_path, notice: "請求書を登録しました。"
+          flash[:success] = "請求書を登録しました。"
+          redirect_to invoices_path
         end
       # 請求書の保存が失敗した場合
       else
@@ -257,7 +259,6 @@ class InvoicesController < ApplicationController
           file = @drive.file_by_title(picture_name)
           picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}")
           picture.update(google_drive_file_id: file.id)
-
         end
         invoice = Invoice.find(@invoice.id)
         invoice.update(google_drive_api_status: 1)
@@ -319,13 +320,17 @@ class InvoicesController < ApplicationController
       status = response.status
       # 最終判定
       if file == nil && status != 200
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
+        flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
+        redirect_to invoices_path
       elsif file == nil
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
+        flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
+        redirect_to invoices_path
       elsif status != 200
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+        flash[:info] = "#{@invoice.subject}を更新しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+        redirect_to invoices_path
       else
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。"
+        flash[:success] = "#{@invoice.subject}を更新しました。"
+        redirect_to invoices_path
       end
     # 請求書の保存が失敗した場合
     else
@@ -391,13 +396,17 @@ class InvoicesController < ApplicationController
     if @invoice.destroy
       # 最終判定
       if file_delete_checks == [] && status == 204
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。"
+        flash[:success] = "#{@invoice.subject}を削除しました。"
+        redirect_to invoices_path
       elsif file_delete_checks != []
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。"
+        flash[:info] = "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。"
+        redirect_to invoices_path
       elsif status != 204
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        flash[:info] = "#{@invoice.subject}を削除しました。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        redirect_to invoices_path
       else
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        flash[:info] = "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        redirect_to invoices_path
       end
     else
       flash.now[:danger] = "削除に失敗しました"
@@ -508,7 +517,8 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = nil
         session[:access_token] = nil
         session[:refresh_token] = nil
-        redirect_to invoices_path, notice: "freeeへの接続に問題があったため、再認証しました。"
+        flash[:info] = "freeeへの接続に問題があったため、再認証しました"
+        redirect_to invoices_path
         # binding.pry
       end
     end

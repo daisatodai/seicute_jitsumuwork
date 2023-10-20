@@ -7,7 +7,7 @@
   <tr>
     <th>メールアドレス</th>
     <th>ユーザー種別</th>
-  </tr>
+    <th></th>
   <% @users.each do |user| %>
     <tr>
       <td><%= link_to user.email, edit_user_path(user.id) %></td>
@@ -17,6 +17,7 @@
           <i class="fa-solid fa-user-slash"></i>
         <% end %>
       </td>
+      <td></td>
     </tr>
   <% end %>
 </table>

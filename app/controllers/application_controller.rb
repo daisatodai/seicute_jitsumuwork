@@ -6,12 +6,14 @@ class ApplicationController < ActionController::Base
   private
 
   def not_authenticated
-    redirect_to new_session_path, danger: "ログインしてください"
+    flash[:danger] = "ログインしてください"
+    redirect_to new_session_path
   end
 
   def admin?
     unless current_user.role == "管理者"
-      redirect_to invoices_path, notice: "許可されていないアクセスです"
+      flash[:danger] = "許可されていないアクセスです"
+      redirect_to invoices_path
     end
   end
   

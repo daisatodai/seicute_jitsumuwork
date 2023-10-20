@@ -1,4 +1,4 @@
-<h1>請求元の編集</h1>
+<h1>請求元編集</h1>
 <%= form_with(model: @requestor, local: true) do |form| %>
   <% if @requestor.errors.any? %>
     <div id="error_expanation">
@@ -12,6 +12,8 @@
   <% end %>
   <div>
   <p><%= form.label :name %></p>
-  <p><%= form.text_field :name, style: "ime-mode:active" %><%= form.submit %></p>
+  <p><%= form.text_field :name, style: "ime-mode:active" %></p>
+  <br>
+  <p><%= form.submit %></p>
   </div>
 <% end %>

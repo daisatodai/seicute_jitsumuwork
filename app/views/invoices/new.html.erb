@@ -16,15 +16,14 @@
       <%= render "picture_fields", f: picture %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 画像を追加", f, :pictures %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :pictures %>
     </div>
   </div>
   <div id="requestor">
     <p><%= f.label :請求元 %></p>
     <p><%= f.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] } %>
-    <p><input name="new_requestor_name" id="new_requestor_id"></input>
-      <%= button_tag "追加", type: 'button', onclick: "sendRequestor();" %>
-    </p>
+    <p><input name="new_requestor_name" id="new_requestor_id"></input></p>
+    <p><%= button_tag "プルダウンに追加", type: 'button', onclick: "sendRequestor();" %></p>
   </div>
   <div>
     <p><%= f.label :issued_on %></p>
@@ -48,9 +47,11 @@
       <%= render "invoice_detail_fields", f: detail %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 詳細を追加", f, :invoice_details %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :invoice_details %>
     </div>
   </div>
+  <br>
+  <br>
   <p><%= f.submit %></p>
 <% end %>
 

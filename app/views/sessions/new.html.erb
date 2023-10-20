@@ -1,4 +1,8 @@
-<h1>ログイン</h1>
+<div class="login">
+  <h1>ログイン</h1>
+  <%= image_tag('請キュートロゴ.png', size: '200x200', alt: "ロゴ") %>
+</div>
+<br><br>
 <%= form_with(url: sessions_path, local: true) do |f| %>  
   <p>
   <%= f.label :メールアドレス %>

@@ -24,6 +24,7 @@ gem 'google_drive', '~> 3.0', '>= 3.0.7'
 gem 'multipart-post', '~> 2.3'
 gem "cocoon"
 gem 'kaminari'
+gem 'bootstrap', '~> 4.4.1'
 
 gem 'bootsnap', '>= 1.4.4', require: false
 

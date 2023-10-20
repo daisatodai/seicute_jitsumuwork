@@ -9,7 +9,8 @@ class SessionsController < ApplicationController
     user = login(params[:email], params[:password])
     if user
       name = current_user.email.match(/(.*)@/)[1]
-      redirect_back_or_to root_path, notice: "おかえりなさい、#{name}さん"
+      flash[:info] = "おかえりなさい、#{name}さん"
+      redirect_back_or_to root_path
 
     else
       flash.now[:danger] = "ログインに失敗しました"
@@ -19,7 +20,8 @@ class SessionsController < ApplicationController
 
   def destroy
     logout
-    redirect_to new_session_path, notice: 'ログアウトしました'
+    flash[:info] = "ログアウトしました"
+    redirect_to new_session_path
   end
 
 end

@@ -16,14 +16,14 @@
       <%= render "edit_picture_fields", f: picture %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 画像を追加", f, :pictures %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :pictures %>
     </div>
   </div>
   <div id="requestor">
     <p><%= f.label :請求元 %></p>
-    <p><%= f.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] } %>
+    <p><%= f.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] } %><br>
     <%= link_to edit_requestor_path(@invoice.requestor_id), data: { confirm: "請求元の編集画面に移動してよろしいですか。入力中のデータは失われます。" }, target: :_blank, rel: "noopener noreferrer" do %>
-      名称を編集<i class="fa-solid fa-up-right-from-square"></i>
+      名称を編集 <i class="fa-solid fa-up-right-from-square"></i>
     <% end %>
   </div>
   <div>
@@ -48,8 +48,10 @@
       <%= render "invoice_detail_fields", f: detail %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 詳細を追加", f, :invoice_details %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :invoice_details %>
     </div>
   </div>
+  <br>
+  <br>
   <p><%= f.submit %></p>
 <% end %>
