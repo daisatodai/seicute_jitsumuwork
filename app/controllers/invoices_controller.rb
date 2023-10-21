@@ -127,7 +127,7 @@ class InvoicesController < ApplicationController
           error = JSON.parse(response.body.force_encoding("UTF-8"))
           if response.status == 400 || response.status == 404 || response.status == 500
             error1 = error.values[1][0]["messages"][0]
-            error2 = error.values[1][1]["messages"][0]
+            error2 = ""
           elsif response.status == 401 || response.status == 403
             error1 = error["message"]
             error2 = error["code"]
@@ -201,8 +201,11 @@ class InvoicesController < ApplicationController
     pictures = Picture.where(invoice_id: @invoice.id)
     files = []
     pictures.each do |picture|
-      file = @drive.file_by_id(picture.google_drive_file_id)
-      # binding.pry
+      begin
+        file = @drive.file_by_id(picture.google_drive_file_id)
+      rescue
+        next
+      end
       file = file.delete(permanent = true)
       begin
         files << @drive.file_by_id(picture.google_drive_file_id)
@@ -265,47 +268,83 @@ class InvoicesController < ApplicationController
       end
       # freeeへの請求書内容連携処理開始
       freee_deal_id = @invoice.freee_deal_id
-      deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
-      connection = Faraday::Connection.new(url: deal_url) do|conn|
-        conn.request :url_encoded
-        conn.adapter Faraday.default_adapter
-      end
-      # リクエストボディに入れるdetailsをあらかじめ整形
-      @invoice_details = InvoiceDetail.where(invoice_id: @invoice.id)
-      details = []
-      @invoice_details.each do |invoice_detail|
-        description = invoice_detail.subject
-        amount = (invoice_detail.unit_price * invoice_detail.quantity * 1.10).to_i
-        details << {
-          "tax_code": 136,
-          "account_item_id": 767592023,
-          "amount": amount,
-          "description": description
-        }
-      end
-      # PUTメソッドでfreeeに連携
-      response = connection.put do |request|
-        request.options.timeout = 300
-        request.headers["Content-Type"] = "application/json"
-        request.headers["Authorization"] = "Bearer #{session[:access_token]}"
-        request.body = {
-          "issue_date": @invoice.issued_on,
-          "type": "expense",
-          "company_id": ENV["FREEE_COMPANY_ID"],
-          "due_date": @invoice.due_on,
-          "details": details
-        }.to_json
+      if freee_deal_id.present? #更新かどうか確認
+        binding.pry
+        deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
+        connection = Faraday::Connection.new(url: deal_url) do|conn|
+          conn.request :url_encoded
+          conn.adapter Faraday.default_adapter
+        end
+        # リクエストボディに入れるdetailsをあらかじめ整形
+        @invoice_details = InvoiceDetail.where(invoice_id: @invoice.id)
+        details = []
+        @invoice_details.each do |invoice_detail|
+          description = invoice_detail.subject
+          amount = (invoice_detail.unit_price * invoice_detail.quantity * 1.10).to_i
+          details << {
+            "tax_code": 136,
+            "account_item_id": 767592023,
+            "amount": amount,
+            "description": description
+          }
+        end
+        # PUTメソッドでfreeeに連携
+        response = connection.put do |request|
+          request.options.timeout = 300
+          request.headers["Content-Type"] = "application/json"
+          request.headers["Authorization"] = "Bearer #{session[:access_token]}"
+          request.body = {
+            "issue_date": @invoice.issued_on,
+            "type": "expense",
+            "company_id": ENV["FREEE_COMPANY_ID"],
+            "due_date": @invoice.due_on,
+            "details": details
+          }.to_json
+        end
+      else # 初回であれば、POSTメソッドでお来る
+        deal_url  = "https://api.freee.co.jp/api/1/deals"
+        connection = Faraday::Connection.new(url: deal_url) do|conn|
+          conn.request :url_encoded
+          conn.adapter Faraday.default_adapter
+        end
+        # リクエストボディに入れるdetailsをあらかじめ整形
+        @invoice_details = InvoiceDetail.where(invoice_id: @invoice.id)
+        details = []
+        @invoice_details.each do |invoice_detail|
+          description = invoice_detail.subject
+          amount = (invoice_detail.unit_price * invoice_detail.quantity * 1.10).to_i
+          details << {
+            "tax_code": 136,
+            "account_item_id": 767592023,
+            "amount": amount,
+            "description": description
+          }
+        end
+        # POSTメソッドでfreeeに連携
+        response = connection.post do |request|
+          request.options.timeout = 300
+          request.headers["Content-Type"] = "application/json"
+          request.headers["Authorization"] = "Bearer #{session[:access_token]}"
+          request.body = {
+            "issue_date": @invoice.issued_on,
+            "type": "expense",
+            "company_id": ENV["FREEE_COMPANY_ID"],
+            "due_date": @invoice.due_on,
+            "details": details
+          }.to_json
+        end
       end
       # freeeへの請求書内容連携処理終了
       # 成功したかレスポンスをチェック
-      if response.status == 200
+      binding.pry
+      if response.status == 200 || response.status == 201
         invoice = Invoice.find(@invoice.id)
-        invoice.update(freee_api_status: 1)
+        invoice.update(freee_api_status: 1, error: nil)
       else
         if response.status == 400 || response.status == 404 || response.status == 500
           error = JSON.parse(response.body.force_encoding("UTF-8"))
           error1 = error.values[1][0]["messages"][0]
-          error2 = error.values[1][1]["messages"][0]
+          error2 = ""
         elsif response.status == 401 || response.status == 403
           error = JSON.parse(response.body.force_encoding("UTF-8"))
           error1 = error["message"]
@@ -315,17 +354,17 @@ class InvoicesController < ApplicationController
         errors << error1
         errors << error2
         invoice = Invoice.find(@invoice.id)
-        invoice.update(error: error1+error2)
+        invoice.update(freee_api_status: 0, error: error1+error2)
       end
       status = response.status
       # 最終判定
-      if file == nil && status != 200
+      if file == nil && status != 200 && status != 201
         flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
         redirect_to invoices_path
       elsif file == nil
         flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
         redirect_to invoices_path
-      elsif status != 200
+      elsif status != 200 && status != 201
         flash[:info] = "#{@invoice.subject}を更新しました。freeeへの連携に失敗しました。#{error1}#{error2}"
         redirect_to invoices_path
       else
@@ -342,13 +381,16 @@ class InvoicesController < ApplicationController
   def destroy
     @invoice = Invoice.find(params[:id])
     pictures = Picture.where(invoice_id: @invoice.id)
-    freee_deal_id = @invoice.freee_deal_id
     # Google Drive上の画像ファイルを完全削除
     files = []
     pictures.each do |picture|
-      file = @drive.file_by_id(picture.google_drive_file_id)
-      file = file.delete(permanent = true)
       begin
+        file = @drive.file_by_id(picture.google_drive_file_id)
+      rescue
+        next
+      end
+        file = file.delete(permanent = true)
+        begin
         files << @drive.file_by_id(picture.google_drive_file_id)
       rescue
         files << nil
@@ -360,39 +402,60 @@ class InvoicesController < ApplicationController
       invoice.update(google_drive_api_status: 1)
     end
     # freee上の請求書内容を完全削除
-    deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
-    connection = Faraday::Connection.new(url: deal_url) do|conn|
-      conn.request :url_encoded
-      conn.adapter Faraday.default_adapter
-    end
-    response = connection.delete do |request|
-      request.options.timeout = 300
-      request.headers["Content-Type"] = "application/json"
-      request.headers["Authorization"] = "Bearer #{session[:access_token]}"
-      request.body = {
-        "id": freee_deal_id,
-        "company_id": ENV["FREEE_COMPANY_ID"]
-      }.to_json
-    end
-    # 成功したかレスポンスをチェック
-    if response.status == 204
-    else
-      error = JSON.parse(response.body.force_encoding("UTF-8"))
-      if response.status == 400 || response.status == 404 || response.status == 500
-        error1 = error.values[1][0]["messages"][0]
-        if error.values[1][1]["messages"][0]
-          error2 = error.values[1][1]["messages"][0] unless error.values[1][1]["messages"][0] == nil
-        end
-      elsif response.status == 401 || response.status == 403
-        error1 = error["message"]
-        error2 = error["code"]
+    freee_deal_id = @invoice.freee_deal_id
+    if @invoice.freee_deal_id.present?
+      deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
+      connection = Faraday::Connection.new(url: deal_url) do|conn|
+        conn.request :url_encoded
+        conn.adapter Faraday.default_adapter
       end
-      errors = []
-      errors << error1
-      errors << error2 unless error2 == nil
-      @invoice.update(freee_api_status: 0)
+      response = connection.delete do |request|
+        request.options.timeout = 300
+        request.headers["Content-Type"] = "application/json"
+        request.headers["Authorization"] = "Bearer #{session[:access_token]}"
+        request.body = {
+          "id": freee_deal_id,
+          "company_id": ENV["FREEE_COMPANY_ID"]
+        }.to_json
+      end
+      if response.status == 200
+        deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
+        connection = Faraday::Connection.new(url: deal_url) do|conn|
+          conn.request :url_encoded
+          conn.adapter Faraday.default_adapter
+        end
+        response = connection.delete do |request|
+          request.options.timeout = 300
+          request.headers["Content-Type"] = "application/json"
+          request.headers["Authorization"] = "Bearer #{session[:access_token]}"
+          request.body = {
+            "id": freee_deal_id,
+            "company_id": ENV["FREEE_COMPANY_ID"]
+          }.to_json
+        end
+        # 成功したかレスポンスをチェック
+        if response.status == 204
+        else
+          error = JSON.parse(response.body.force_encoding("UTF-8"))
+          if response.status == 400 || response.status == 404 || response.status == 500
+            error1 = error.values[1][0]["messages"][0]
+            if error.values[1][1]["messages"][0]
+              error2 = error.values[1][1]["messages"][0] unless error.values[1][1]["messages"][0] == nil
+            end
+          elsif response.status == 401 || response.status == 403
+            error1 = error["message"]
+            error2 = error["code"]
+          end
+          errors = []
+          errors << error1
+          errors << error2 unless error2 == nil
+          @invoice.update(freee_api_status: 0)
+          status = response.status
+        end
+      end
+    else
+      status = 204
     end
-    status = response.status
     if @invoice.destroy
       # 最終判定
       if file_delete_checks == [] && status == 204
@@ -409,6 +472,7 @@ class InvoicesController < ApplicationController
         redirect_to invoices_path
       end
     else
+      invoice.update(google_drive_api_status: 2)
       flash.now[:danger] = "削除に失敗しました"
       render :index
     end
@@ -445,7 +509,7 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = query_string[1]
         # binding.pry
       else
-        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2F192.168.3.100%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
+        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
       end
     end
   end
@@ -465,7 +529,7 @@ class InvoicesController < ApplicationController
           client_id: ENV["FREEE_CLIENT_ID"],
           client_secret: ENV["FREEE_CLIENT_SECRET"],
           code: session[:authentication_code],
-          redirect_uri: "http://192.168.3.100:3000/invoices"
+          redirect_uri: "http://localhost:3000/invoices"
         }
       end
       session[:access_token] = JSON.parse(response.body)["access_token"]
@@ -506,7 +570,7 @@ class InvoicesController < ApplicationController
           client_id: ENV['FREEE_CLIENT_ID'],
           client_secret: ENV['FREEE_CLIENT_SECRET'],
           refresh_token: session[:refresh_token],
-          redirect_uri: "http://192.168.3.100:3000/invoices"
+          redirect_uri: "http://localhost:3000/invoices"
         }
       end
       if response.status == 200
@@ -523,5 +587,4 @@ class InvoicesController < ApplicationController
       end
     end
   end
-
 end

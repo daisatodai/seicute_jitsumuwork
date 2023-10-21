@@ -30,15 +30,15 @@
       <td><%= link_to invoice.subject, invoice_path(invoice.id) %></td>
       <td><%= invoice.requestor.name %></td>
       <%# binding.pry %>
-      <% if invoice.google_drive_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
+      <% if invoice.google_drive_api_status == "未連携" || invoice.google_drive_api_status == "その他のエラー" %>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20", class: "status" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20", class: "status" %></td>
       <% end %>
       <% if invoice.freee_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20", class: "status" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20", class: "status" %></td>
       <% end %>
     </tr>
   <% end %>
