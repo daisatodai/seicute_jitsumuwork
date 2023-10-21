@@ -1,7 +1,7 @@
 <h1>請求元一覧</h1>
-<%= link_to new_requestor_path do %>
-  <i class="fa-solid fa-building fa-xl"></i> 登録する
-<% end %>
+<p><%= link_to new_requestor_path do %>
+  <i class="fa-solid fa-building fa-xl"></i> <i class="fa-solid fa-plus fa-sm"></i>
+<% end %></p>
 <%= paginate @requestors %>
 <table>
   <tr>

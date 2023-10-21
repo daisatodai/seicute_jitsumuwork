@@ -31,14 +31,14 @@
       <td><%= invoice.requestor.name %></td>
       <%# binding.pry %>
       <% if invoice.google_drive_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg", size: "16x16" %></td>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg", size: "18x18" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
       <% end %>
       <% if invoice.freee_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg", size: "16x16" %></td>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg", size: "18x18" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
       <% end %>
     </tr>
   <% end %>

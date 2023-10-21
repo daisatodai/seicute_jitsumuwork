@@ -244,7 +244,7 @@ class InvoicesController < ApplicationController
       # Google Driveへの画像連携処理終了
       # 成功したかのチェック
       file_upload_checks = []
-      files.length.times do |i|
+      pictures.length.times do |i|
         picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{i + 1}"
         file_upload_checks << @drive.file_by_title(picture_name)
       end
@@ -445,7 +445,7 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = query_string[1]
         # binding.pry
       else
-        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2F192.168.100.42%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
+        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2F192.168.3.100%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
       end
     end
   end
@@ -465,7 +465,7 @@ class InvoicesController < ApplicationController
           client_id: ENV["FREEE_CLIENT_ID"],
           client_secret: ENV["FREEE_CLIENT_SECRET"],
           code: session[:authentication_code],
-          redirect_uri: "http://192.168.100.42:3000/invoices"
+          redirect_uri: "http://192.168.3.100:3000/invoices"
         }
       end
       session[:access_token] = JSON.parse(response.body)["access_token"]
@@ -506,7 +506,7 @@ class InvoicesController < ApplicationController
           client_id: ENV['FREEE_CLIENT_ID'],
           client_secret: ENV['FREEE_CLIENT_SECRET'],
           refresh_token: session[:refresh_token],
-          redirect_uri: "http://192.168.100.42:3000/invoices"
+          redirect_uri: "http://192.168.3.100:3000/invoices"
         }
       end
       if response.status == 200

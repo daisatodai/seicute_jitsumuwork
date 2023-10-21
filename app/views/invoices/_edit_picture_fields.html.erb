@@ -1,7 +1,7 @@
 <div class="nested-fields">
-  <%= button_tag '写真を撮って追加', type: 'button', onclick: 'browsePicture(this);' %>
+  <%= button_tag 'カメラを起動...', type: 'button', onclick: 'browsePicture(this);' %>
   <%= f.file_field :image, capture: "camera", class: 'file-field', style: 'display:none;' %><br><br>
-  <%= image_tag (f.object.image.url), class: 'preview-field', size: "360x500" %></p>
+  <%= image_tag (f.object.image.url), class: 'preview-field', size: "360x500" %><br><br>
   <p><%= link_to_remove_association image_tag("trash-solid.svg", size: "20x20", class:'icon'), f %></p>
 </div>
 

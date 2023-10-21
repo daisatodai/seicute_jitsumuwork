@@ -16,13 +16,13 @@
         <nav class="navbar navbar-expand-xl navbar-white bg-white">
           <div class="container-fluid">
           <% if logged_in? %>
-            <%= link_to image_tag('seicute_logo.png', size: '80x80', alt: "ロゴ"), root_path %>
+            <%= link_to image_tag('seicute_logo.png', size: '60x60', alt: "ロゴ"), root_path, {class: "logo"} %>
           <% end %>
             <ul class="navbar-nav me-auto mb-2 mb-xl-0">
               <% if logged_in? %>
                 <% if current_user.role == "管理者" %>
                   <li class="nav-item"><%= link_to users_path do %>
-                    <i class="fa-solid fa-users-gear fa-lg"></i>　ユーザー
+                    <i class="fa-solid fa-users-gear fa-lg"></i> ユーザー
                   <% end %></li>
                 <% end %>
                 <li class="nav-item"><%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>

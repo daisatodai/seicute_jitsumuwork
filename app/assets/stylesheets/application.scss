@@ -38,12 +38,11 @@ header {
 }
 
 .navbar a {
-  margin-top: -10px;
+  margin-top: -13px;
   background-color: #FFF;
 }
 
 .container-fluid {
-  margin-bottom: -10px;
   padding-bottom: -10px;
 }
 
@@ -84,11 +83,13 @@ textarea {
 }
 
 button {
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: bold;
   height: 30px;
   border-radius:10px;
-  background-color: #1e90ff;
-  color: #fff;
+  background-color: #dcdcdc;
+  color: #333333;
+  border: none;
 }
 
 #invoice_issued_on {
@@ -135,7 +136,7 @@ a {
 }
 
 .login {
-  padding-top: 20px;
+  padding-top: 100px;
   padding-bottom: 30px;
   margin-top: calc(45% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -147,6 +148,11 @@ a {
 
 img {
   border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.logo {
+  padding-top: 10px;
 }
 
 .btn {
