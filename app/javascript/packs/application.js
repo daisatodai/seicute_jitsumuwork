@@ -16,7 +16,3 @@ require("jquery")
 require("@nathanvda/cocoon")
 
 import '@fortawesome/fontawesome-free/js/all';
-import "./form_limit"
-// import "./preview"
-// import "./preview_edit"
-// import "./preview_delete"

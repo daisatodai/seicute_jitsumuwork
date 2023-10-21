@@ -1,4 +1,5 @@
 class RequestorsController < ApplicationController
+  before_action :admin?, only: %i[edit update destroy]
 
   def index
     @requestors = Requestor.all
@@ -44,6 +45,13 @@ class RequestorsController < ApplicationController
     else
       flash.now[:danger] = "削除に失敗しました"
       render :index
+    end
+  end
+
+  def requestor_new
+    if params[:new_requestor_name].present?
+      @requestor = Requestor.new(name: params[:new_requestor_name])
+      @requestor.save
     end
   end
 

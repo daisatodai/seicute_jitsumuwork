@@ -10,23 +10,14 @@
       </ul>
     </div>
   <% end %>
-  <p>
-  <%= f.label :email %>
-  <%= f.email_field :email %>
-  </P>
-  <P>
-  <%= f.label :password %>
-  <%= f.password_field :password %>
-  </P>
-  <P>
-  <%= f.label :password_confirmation %>
-  <%= f.password_field :password_confirmation %>
-  </P>
-  <P>
-  <%= f.label :role %>
-  <%= f.select :role, User.roles.keys.to_a %>
-  </P>
+  <p><%= f.label :email %></p>
+  <p><%= f.email_field :email, style: "ime-mode:disabled" %></p>
+  <p><%= f.label :password %></p>
+  <p><%= f.password_field :password %></p>
+  <p><%= f.label :password_confirmation %></p>
+  <p><%= f.password_field :password_confirmation %></p>
+  <p><%= f.label :role %></p>
+  <p><%= f.select :role, User.roles.keys.to_a %></p>
   <br>
   <%= f.submit %>
 <% end %>
-<%= link_to "戻る", users_path %>

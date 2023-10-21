@@ -1,0 +1,10 @@
+$('#new_requestor_id').val('');
+$("#error_expanation").remove();
+$("#requestor").append('<%= escape_javascript(render partial: "requestors/requestor_new") %>')
+
+<% unless @requestor.errors.any? %>
+  $("<option>", {text: '<%= @requestor.name %>'}).attr({
+    value: "<%= @requestor.id %>",
+    selected: true,
+  }).appendTo("#invoice_requestor_id");
+<% end %>

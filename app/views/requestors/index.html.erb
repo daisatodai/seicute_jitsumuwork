@@ -1,11 +1,12 @@
 <h1>請求元一覧</h1>
-<%= link_to new_requestor_path do %>
-  <i class="fa-solid fa-building fa-xl"></i> 登録する
-<% end %>
+<p><%= link_to new_requestor_path do %>
+  <i class="fa-solid fa-building fa-xl"></i> <i class="fa-solid fa-plus fa-sm"></i>
+<% end %></p>
 <%= paginate @requestors %>
 <table>
   <tr>
-    <th>請求元</th>
+  <th>請求元</th>
+  <th></th>
   </tr>
 <% @requestors.each do |requestor| %>
   <tr>
@@ -15,6 +16,7 @@
         <i class="fa-solid fa-trash"></i>
       <% end %>
     </td>
+    <td></td>
   </tr>
 <% end %>
 </table>

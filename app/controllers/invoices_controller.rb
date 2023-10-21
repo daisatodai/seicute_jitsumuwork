@@ -1,4 +1,5 @@
 class InvoicesController < ApplicationController
+  before_action :admin?, only: %i[edit update destroy]
   before_action :auth_google_drive
   before_action :get_freee_authentication_code, only: %i[index new edit]
   
@@ -8,8 +9,6 @@ class InvoicesController < ApplicationController
     check_freee_connection
     @invoices = Invoice.all.includes(:requestor).order("created_at DESC")
     @invoices = @invoices.page(params[:page]).per(15)
-    # session[:access_token] = "gheiwauhgpawiehgvapweuhvapiuwehva"
-    # session[:authentication_code] = nil
   end
 
   def new
@@ -18,6 +17,7 @@ class InvoicesController < ApplicationController
     # freeeとの疎通確認
     check_freee_connection
     @invoice = Invoice.new
+    @requestor = Requestor.new
     1.times {@invoice.invoice_details.build}
     1.times {@invoice.pictures.build}
   end
@@ -45,20 +45,22 @@ class InvoicesController < ApplicationController
         # 格納先のフォルダーの存在を確認し、なければ作成する
         top_folder = @drive.file_by_id(ENV['GOOGLE_DRIVE_TOP_LEVEL_FOLDER_ID'])
         # binding.pry
-        if top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-          second_level_folder = top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-          if second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
-            third_level_folder = second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
+        year = params[:invoice][:issued_on][0, 4] + "年"
+        month = params[:invoice][:issued_on][5, 2] + "月"
+        if top_folder.file_by_title(year)
+          second_level_folder = top_folder.file_by_title(year)
+          if second_level_folder.file_by_title(month)
+            third_level_folder = second_level_folder.file_by_title(month)
           else
-            third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+            third_level_folder = second_level_folder.create_subfolder(month)
           end
         else
-          second_level_folder = top_folder.create_subfolder(params[:invoice]["issued_on(1i)"]+"年")
-          third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+          second_level_folder = top_folder.create_subfolder(year)
+          third_level_folder = second_level_folder.create_subfolder(month)
         end
         # 画像ファイルのアップロード処理
         files.each.with_index do |file, index|
-          filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+          filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
           file_ext = File.extname(filename)
           file_find = third_level_folder.upload_from_file(File.absolute_path(file), filename, convert: false)
           # binding.pry
@@ -67,7 +69,7 @@ class InvoicesController < ApplicationController
         # 成功したかのチェック
         file_upload_checks = []
         files.length.times do |i|
-          filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{i + 1}"
+          filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{i + 1}"
           file_upload_checks << @drive.file_by_title(filename)
         end
         if file_upload_checks.include?(nil)
@@ -75,7 +77,7 @@ class InvoicesController < ApplicationController
         else # 成功した場合picturesテーブルに保存されたレコードをすぐに呼び出して、google_drive_urlカラムを更新する
           pictures = Picture.where(invoice_id: @invoice.id)
           pictures.each.with_index do |picture, index|
-            filename = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+            filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
             file = @drive.file_by_title(filename)
             picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}", google_drive_file_id: file.id)
           end
@@ -139,13 +141,17 @@ class InvoicesController < ApplicationController
         status = response.status
         # 最終判定
         if file == nil && status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          flash[:info] = "請求書を登録しました。画像のアップロードに失敗しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          redirect_to invoices_path
         elsif file == nil
-          redirect_to invoices_path, notice: "請求書を登録しました。画像のアップロードに失敗しました。"
+          flash[:info] = "請求書を登録しました。画像のアップロードに失敗しました。"
+          redirect_to invoices_path
         elsif status != 201
-          redirect_to invoices_path, notice: "請求書を登録しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          flash[:info] = "請求書を登録しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+          redirect_to invoices_path
         else
-          redirect_to invoices_path, notice: "請求書を登録しました。"
+          flash[:success] = "請求書を登録しました。"
+          redirect_to invoices_path
         end
       # 請求書の保存が失敗した場合
       else
@@ -213,20 +219,22 @@ class InvoicesController < ApplicationController
       pictures = Picture.where(invoice_id: @invoice.id)
       # 格納先のフォルダーの存在を確認し、なければ作成する
       top_folder = @drive.file_by_id(ENV['GOOGLE_DRIVE_TOP_LEVEL_FOLDER_ID'])
-      if top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-        second_level_folder = top_folder.file_by_title(params[:invoice]["issued_on(1i)"]+"年")
-        if second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
-          third_level_folder = second_level_folder.file_by_title(params[:invoice]["issued_on(2i)"]+"月")
+        year = params[:invoice][:issued_on][0, 4] + "年"
+        month = params[:invoice][:issued_on][5, 2] + "月"
+        if top_folder.file_by_title(year)
+          second_level_folder = top_folder.file_by_title(year)
+          if second_level_folder.file_by_title(month)
+            third_level_folder = second_level_folder.file_by_title(month)
+          else
+            third_level_folder = second_level_folder.create_subfolder(month)
+          end
         else
-          third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
+          second_level_folder = top_folder.create_subfolder(year)
+          third_level_folder = second_level_folder.create_subfolder(month)
         end
-      else
-        second_level_folder = top_folder.create_subfolder(params[:invoice]["issued_on(1i)"]+"年")
-        third_level_folder = second_level_folder.create_subfolder(params[:invoice]["issued_on(2i)"]+"月")
-      end
       # 画像ファイルのアップロード処理
       pictures.each.with_index do |picture, index|
-        picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+        picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
         file_ext = File.extname(picture_name)
         # binding.pry
         file = picture.image.instance_variable_get(:@file)
@@ -236,8 +244,8 @@ class InvoicesController < ApplicationController
       # Google Driveへの画像連携処理終了
       # 成功したかのチェック
       file_upload_checks = []
-      files.length.times do |i|
-        picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{i + 1}"
+      pictures.length.times do |i|
+        picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{i + 1}"
         file_upload_checks << @drive.file_by_title(picture_name)
       end
       if file_upload_checks.include?(nil)
@@ -247,11 +255,10 @@ class InvoicesController < ApplicationController
       else # 成功した場合picturesテーブルに保存されたレコードをすぐに呼び出して、google_drive_urlカラムを更新する
         pictures = Picture.where(invoice_id: @invoice.id)
         pictures.each.with_index do |picture, index|
-          picture_name = "#{params[:invoice]["issued_on(1i)"]}年#{params[:invoice]["issued_on(2i)"]}月_#{params[:invoice][:subject]}_#{index + 1}"
+          picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
           file = @drive.file_by_title(picture_name)
           picture.update(google_drive_url: "https://drive.google.com/uc?export=view&id=#{file.id}")
           picture.update(google_drive_file_id: file.id)
-
         end
         invoice = Invoice.find(@invoice.id)
         invoice.update(google_drive_api_status: 1)
@@ -313,13 +320,17 @@ class InvoicesController < ApplicationController
       status = response.status
       # 最終判定
       if file == nil && status != 200
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
+        flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。freeeへの連携に失敗しました。#{error1}#{error2}"
+        redirect_to invoices_path
       elsif file == nil
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
+        flash[:info] = "#{@invoice.subject}を更新しました。画像のアップロードに失敗しました。手動でGoogle Driveに登録してください。ファイル名は yyyy年mm月_件名_何枚目.拡張子 です。"
+        redirect_to invoices_path
       elsif status != 200
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+        flash[:info] = "#{@invoice.subject}を更新しました。freeeへの連携に失敗しました。#{error1}#{error2}"
+        redirect_to invoices_path
       else
-        redirect_to invoices_path, notice: "#{@invoice.subject}を更新しました。"
+        flash[:success] = "#{@invoice.subject}を更新しました。"
+        redirect_to invoices_path
       end
     # 請求書の保存が失敗した場合
     else
@@ -385,13 +396,17 @@ class InvoicesController < ApplicationController
     if @invoice.destroy
       # 最終判定
       if file_delete_checks == [] && status == 204
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。"
+        flash[:success] = "#{@invoice.subject}を削除しました。"
+        redirect_to invoices_path
       elsif file_delete_checks != []
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。"
+        flash[:info] = "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。"
+        redirect_to invoices_path
       elsif status != 204
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        flash[:info] = "#{@invoice.subject}を削除しました。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        redirect_to invoices_path
       else
-        redirect_to invoices_path, notice: "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        flash[:info] = "#{@invoice.subject}を削除しました。Google Driveからの画像削除に失敗しました。#{file_delete_checks.name}を手動で削除してください。freeeの内容削除に失敗しました。以下のメッセージを確認し手動で削除してください。#{errors}"
+        redirect_to invoices_path
       end
     else
       flash.now[:danger] = "削除に失敗しました"
@@ -430,7 +445,7 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = query_string[1]
         # binding.pry
       else
-        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2F192.168.100.42%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
+        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2F192.168.3.100%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
       end
     end
   end
@@ -450,7 +465,7 @@ class InvoicesController < ApplicationController
           client_id: ENV["FREEE_CLIENT_ID"],
           client_secret: ENV["FREEE_CLIENT_SECRET"],
           code: session[:authentication_code],
-          redirect_uri: "http://192.168.100.42:3000/invoices"
+          redirect_uri: "http://192.168.3.100:3000/invoices"
         }
       end
       session[:access_token] = JSON.parse(response.body)["access_token"]
@@ -491,7 +506,7 @@ class InvoicesController < ApplicationController
           client_id: ENV['FREEE_CLIENT_ID'],
           client_secret: ENV['FREEE_CLIENT_SECRET'],
           refresh_token: session[:refresh_token],
-          redirect_uri: "http://192.168.100.42:3000/invoices"
+          redirect_uri: "http://192.168.3.100:3000/invoices"
         }
       end
       if response.status == 200
@@ -502,7 +517,8 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = nil
         session[:access_token] = nil
         session[:refresh_token] = nil
-        redirect_to invoices_path, notice: "freeeへの接続に問題があったため、再認証しました。"
+        flash[:info] = "freeeへの接続に問題があったため、再認証しました"
+        redirect_to invoices_path
         # binding.pry
       end
     end

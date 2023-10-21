@@ -1,26 +1,24 @@
 <h1>請求書一覧</h1>
 <%= form_with scope: :search, url: searches_search_path, method: :get, local: true do |form| %>
-  <div>
-    <%= button_tag type: "submit" do %>
-      <i class="fa-solid fa-magnifying-glass fa-lg"></i> 検索する
-    <% end %>
-  </div>
   <%= form.date_select :due_on, include_blank: "日付..." %>
-  <%= form.search_field :subject, placeholder: "件名..." %>
+  <%= form.search_field :subject, placeholder: "件名...", style: "ime-mode:active", class: "search-input" %>
   <%= form.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] }, include_blank: "請求元..." %>
+  <%= button_tag type: "submit" do %>
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>検索
+  <% end %>
 <% end %>
 <%= paginate @invoices %>
 <table>
   <tr>
-    <th>支払い期日</th>
-    <th>件名</th>
-    <th><%= link_to "請求元", requestors_path %></th>
-    <th>
+    <th scope="col" style="width: 24%">支払い期日</th>
+    <th scope="col" style="width: 45%">件名</th>
+    <th scope="col" style="width: 25%"><%= link_to "請求元", requestors_path %></th>
+    <th scope="col" style="width: 3%">
       <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0", target: :_blank, rel: "noopener noreferrer" do %>
         <i class="fa-brands fa-google-drive"></i>
       <% end %>
     </th>
-    <th>
+    <th scope="col" style="width: 3%">
       <%= link_to "https://secure.freee.co.jp/deals", target: :_blank, rel: "noopener noreferrer" do %>
         <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
@@ -33,14 +31,14 @@
       <td><%= invoice.requestor.name %></td>
       <%# binding.pry %>
       <% if invoice.google_drive_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg" %></td>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
       <% end %>
       <% if invoice.freee_api_status == "未連携" %>
-        <td><%= image_tag "triangle-exclamation-solid.svg", size: "16x16" %></td>
+        <td><%= image_tag "triangle-exclamation-solid.svg", size: "20x20" %></td>
       <% else %>
-        <td><%= image_tag "square-check-regular.svg", size: "18x18" %></td>
+        <td><%= image_tag "square-check-regular.svg", size: "20x20" %></td>
       <% end %>
     </tr>
   <% end %>

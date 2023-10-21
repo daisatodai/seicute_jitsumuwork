@@ -16,31 +16,30 @@
       <%= render "picture_fields", f: picture %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 画像を追加", f, :pictures %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :pictures %>
     </div>
   </div>
-  <%#= turbo_frame_tag "first_turbo_frame" do %>
-    <div>
-      <p><%= f.label :請求元 %></p>
-      <p><%= f.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] } %>
-      <%= link_to "請求元の追加", new_requestor_path %></p>
-    </div>
-  <%# end %>
+  <div id="requestor">
+    <p><%= f.label :請求元 %></p>
+    <p><%= f.select :requestor_id, Requestor.all.collect { |p| [ p.name, p.id ] } %>
+    <p><input name="new_requestor_name" id="new_requestor_id"></input></p>
+    <p><%= button_tag "プルダウンに追加", type: 'button', onclick: "sendRequestor();" %></p>
+  </div>
   <div>
     <p><%= f.label :issued_on %></p>
-    <p><%= f.date_select :issued_on %></p>
+    <p><%= f.date_field :issued_on, value: Time.now.strftime("%Y-%m-%d") %></p>
   </div>
   <div>
     <p><%= f.label :subject %></p>
-    <p><%= f.text_field :subject %></p>
+    <p><%= f.text_field :subject, style: "ime-mode:active" %></p>
   </div>
   <div>
     <p><%= f.label :due_on %></p>
-    <p><%= f.date_select :due_on %></p>
+    <p><%= f.date_field :due_on, value: Time.now.strftime("%Y-%m-%d") %></p>
   </div>
   <div>
     <p><%= f.label :memo %></p>
-    <p><%= f.text_area :memo %></p>
+    <p><%= f.text_area :memo, style: "ime-mode:active" %></p>
   </div>
   <div class="invoice-details">
   <p>詳細</p>
@@ -48,8 +47,20 @@
       <%= render "invoice_detail_fields", f: detail %>
     <% end %>
     <div class="links">
-      <%= link_to_add_association "➕ 詳細を追加", f, :invoice_details %>
+      <%= link_to_add_association "➕ フィールドを追加", f, :invoice_details %>
     </div>
   </div>
+  <br>
+  <br>
   <p><%= f.submit %></p>
 <% end %>
+
+<script>
+   function sendRequestor(){
+    $.ajax({
+      url: '<%= requestor_new_requestors_path %>',
+      type: 'POST',
+      data: $("form").serializeArray()
+    })
+   }
+</script>

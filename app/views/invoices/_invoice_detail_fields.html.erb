@@ -1,11 +1,11 @@
 <div class="nested-fields">
   <div>
-    <%= f.label :subject %>
-    <%= f.text_field :subject %>
-    <%= f.label :quantity %>
-    <%= f.number_field :quantity %>
-    <%= f.label :unit_price %>
-    <%= f.number_field :unit_price %>
-    <%= link_to_remove_association image_tag("trash-solid.svg", size: "20x20", class:'icon'), f %>
+    <p><%= f.label :subject %>
+    <%= f.text_field :subject, style: "ime-mode:active" %></p>
+    <p><%= f.label :quantity %>
+    <%= f.number_field :quantity, type: 'tel' %></p>
+    <p><%= f.label :unit_price %>
+    <%= f.number_field :unit_price, type: 'tel' %></p>
+    <p><%= link_to_remove_association image_tag("trash-solid.svg", size: "20x20", class:'icon'), f %></p>
   </div>
 </div>

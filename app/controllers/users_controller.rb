@@ -59,13 +59,6 @@ class UsersController < ApplicationController
     params.require(:user).permit(:email, :password, :password_confirmation, :role)
   end
 
-  def admin?
-    unless current_user.role == "管理者"
-      flash[:danger] = "許可されていないアクセスです"
-      redirect_to invoices_path
-    end
-  end
-
   def get_name_from_email
     name = @user.email.match(/(.*)@/)[1]
   end

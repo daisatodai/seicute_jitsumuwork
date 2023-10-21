@@ -1,13 +1,12 @@
-<h1>ログイン</h1>
+<div class="login">
+  <%= image_tag('seicute_logo.png', size: '200x200', alt: "ロゴ") %>
+</div>
+<br><br>
 <%= form_with(url: sessions_path, local: true) do |f| %>  
-  <p>
-  <%= f.label :メールアドレス %>
-  <%= f.email_field :email %>
-  </P>
-  <P>
-  <%= f.label :パスワード %>
-  <%= f.password_field :password %>
-  </P>
+  <p><%= f.label :メールアドレス %></p>
+  <p><%= f.email_field :email, style: "ime-mode:disabled" %></p>
+  <p><%= f.label :パスワード %></p>
+  <p><%= f.password_field :password %></p>
   <br>
   <%= f.submit "ログイン" %>
 <% end %>

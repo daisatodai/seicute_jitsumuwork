@@ -20,8 +20,6 @@ class Invoice < ApplicationRecord
   scope :search_by_due_on_month, -> (from, to){ where(due_on: from..to)}
   scope :search_by_due_on_date, -> (due_on){ where(due_on: "#{due_on}")}
   scope :search_by_subject, -> (subject){ where("subject LIKE ?", "%#{subject}%")}
-  # validates :issued_on_before_type_cast, format: { with: /\A(2014)-([01]\d)-([0-3]\d)\z/ }, unless: ->(rec){ rec.due_on_before_type_cast.blank? }
-  # validates :due_on_before_type_cast, format: { with: /\A(2014)-([01]\d)-([0-3]\d)\z/ }, unless: ->(rec){ rec.due_on_before_type_cast.blank? }
   validate :start_end_check
 
   def start_end_check

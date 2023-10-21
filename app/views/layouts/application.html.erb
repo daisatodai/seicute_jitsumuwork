@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
     <title>Seicute</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,24 +11,44 @@
   </head>
 
   <body>
-    <%= link_to users_path do %>
-      <i class="fa-solid fa-users fa-xl"></i> ユーザー
-    <% end %>
-    <% if logged_in? %>
-      <%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>
-        <i class="fa-solid fa-right-from-bracket fa-xl"></i> ログアウト
+    <div class="flex-container">
+      <header class="sticky-top">
+        <nav class="navbar navbar-expand-xl navbar-white bg-white">
+          <div class="container-fluid">
+          <% if logged_in? %>
+            <%= link_to image_tag('seicute_logo.png', size: '60x60', alt: "ロゴ"), root_path, {class: "logo"} %>
+          <% end %>
+            <ul class="navbar-nav me-auto mb-2 mb-xl-0">
+              <% if logged_in? %>
+                <% if current_user.role == "管理者" %>
+                  <li class="nav-item"><%= link_to users_path do %>
+                    <i class="fa-solid fa-users-gear fa-lg"></i> ユーザー
+                  <% end %></li>
+                <% end %>
+                <li class="nav-item"><%= link_to session_path(current_user.id), method: :delete, data: {confirm: "ログアウトしますか？"} do %>
+                  <i class="fa-solid fa-right-from-bracket fa-xl"></i> ログアウト
+                <% end %></li>
+              <% end %>
+            </ul>
+          </div>
+        </nav>
+      </header>
+      <% flash.each do |key, value| %>
+        <%= content_tag(:p, value, class: "alert alert-#{key}") %>
       <% end %>
-    <% end %>
-    <% flash.each do |key, value| %>
-      <%= content_tag(:p, value, class: "alert alert-#{key}") %>
-    <% end %>
-    <%= yield %>
-  </body>
-  <%= link_to invoices_path do %>
-    <i class="fa-solid fa-list fa-xl"></i> 請求書一覧
-  <% end %>
-  <%= link_to new_invoice_path do %>
-    <i class="fa-solid fa-file-invoice fa-xl"></i> 登録する
-  <% end %>
+      <div class="container">
+        <%= yield %>
+      </div>
+      <footer class="flex-footer">
+        <% if logged_in? %>
+          <%= link_to invoices_path do %>
+            <i class="fa-solid fa-list fa-xl"></i> 請求書一覧
+          <% end %>
+          <%= link_to new_invoice_path do %>
+            <i class="fa-solid fa-file-invoice fa-xl"></i> 登録する
+          <% end %>
+        <% end %>
+      </footer>
+    </div>
   </body>
 </html>

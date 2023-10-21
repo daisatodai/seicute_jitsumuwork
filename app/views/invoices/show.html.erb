@@ -1,45 +1,57 @@
 <h1>請求書詳細</h1>
-<%= link_to edit_invoice_path do %>
-  <i class="fa-solid fa-file-pen fa-lg"></i> 編集する
+<% if current_user.role == "管理者" %>
+  <%= link_to edit_invoice_path do %>
+    <i class="fa-solid fa-file-pen fa-lg"></i> 編集する
+  <% end %>
+  <%= link_to invoice_path(@invoice.id), method: :delete, data: {confirm: "削除しますか"} do %>
+    <i class="fa-solid fa-trash fa-lg"></i> 削除する
+  <% end %>
 <% end %>
-<%= link_to invoice_path(@invoice.id), method: :delete, data: {confirm: "削除しますか"} do %>
-  <i class="fa-solid fa-trash fa-lg"></i> 削除する
-<% end %>
+<br>
+<br>
 <% @pictures.each.with_index do |picture, index| %>
   <% if picture.google_drive_url %>
     <%= link_to picture.google_drive_url do %>
-      <%= image_tag picture.google_drive_url, size: "250x340" %>
+      <%= image_tag picture.google_drive_url, size: "360x500" %>
     <% end %>
   <% else %>
     <%= "画像#{index + 1}を表示できません" %>
   <% end %>
 <% end %>
+<br>
+<br>
 <table>
   <tr>
-    <th>請求元</th>
-    <th>件名</th>
-    <th>期日</th>
+  <th scope="col" style="width: 25%"><%= link_to "請求元", requestors_path %></th>
+  <th scope="col" style="width: 50%">件名</th>
+    <th scope="col" style="width: 25%">支払い期日</th>
   </tr>
   <tr>
     <td><%= Requestor.find(@invoice.requestor_id).name %></td>
     <td><%= @invoice.subject %></td>
     <td><%= l @invoice.due_on, format: :default %></td>
   </tr>
+</table>
+<hr>
+<table>
   <tr>
-    <th>小計</th>
-    <th>合計</th>
-    <th>メモ</th>
+    <th scope="col" style="width: 25%">小計</th>
+    <th scope="col" style="width: 25%">合計</th>
+    <th scope="col" style="width: 50%">メモ</th>
   </tr>
   <tr>
     <td><%= @subtotal.to_s(:delimited) %>円</td>
     <td><%= @total.to_s(:delimited) %>円</td>
     <td><%= @invoice.memo %></td>
   </tr>
+</table>
+<hr>
+<table>
   <tr>
-    <th>内訳</th>
-    <th>数量</th>
-    <th>税抜き単価</th>
-    <th>金額</th>
+    <th scope="col" style="width: 30%">内訳</th>
+    <th scope="col" style="width: 10%">数量</th>
+    <th scope="col" style="width: 30%">税抜き単価</th>
+    <th scope="col" style="width: 30%">金額</th>
   </tr>
   <% @invoice.invoice_details.each do |invoice_detail| %>
   <tr>
@@ -49,19 +61,21 @@
     <td><%= (invoice_detail.quantity * invoice_detail.unit_price).to_s(:delimited) %>円</td>
   </tr>
   <% end %>
-
+</table>
+<hr>
+<table>
   <tr>
-    <th>
+    <th scope="col" style="width: 25%">
       <%= link_to "https://drive.google.com/drive/folders/1l7aQ5e_K7ibOOK7rZmIOwXHaOGmNTx_0", target: :_blank, rel: "noopener noreferrer" do %>
         <i class="fa-brands fa-google-drive"></i>
       <% end %>
     </th>
-    <th>
+    <th scope="col" style="width: 25%">
       <%= link_to "https://secure.freee.co.jp/deals", target: :_blank, rel: "noopener noreferrer" do %>
         <%= image_tag "freee_logo.png", size: "40x40" %>
       <% end %>
     </th>
-    <th>登録者</th>
+    <th scope="col" style="width: 50%">登録者</th>
   </tr>
   <tr>
     <% if @invoice.google_drive_api_status == "✖️" %>
@@ -75,6 +89,6 @@
     <% else %>
       <td><%= @invoice.freee_api_status %></td>
     <% end %>
-    <td><%= @invoice.user.email %>さん</td>
+    <td><%= @invoice.user.email %></td>
   </tr>
 </table>
