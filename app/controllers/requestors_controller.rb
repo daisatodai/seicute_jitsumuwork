@@ -60,5 +60,4 @@ class RequestorsController < ApplicationController
   def requestor_params
     params.require(:requestor).permit(:name)
   end
-
 end

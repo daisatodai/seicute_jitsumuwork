@@ -8,15 +8,15 @@
   <th>請求元</th>
   <th></th>
   </tr>
-<% @requestors.each do |requestor| %>
-  <tr>
-    <td><%= link_to requestor.name, edit_requestor_path(requestor.id) %></td>
-    <td>
-      <%= link_to requestor_path(requestor.id), method: :delete, data: {confirm: "削除しますか"} do %>
-        <i class="fa-solid fa-trash"></i>
-      <% end %>
-    </td>
-    <td></td>
-  </tr>
-<% end %>
+  <% @requestors.each do |requestor| %>
+    <tr>
+      <td><%= link_to requestor.name, edit_requestor_path(requestor.id) %></td>
+      <td>
+        <%= link_to requestor_path(requestor.id), method: :delete, data: {confirm: "削除しますか"} do %>
+          <i class="fa-solid fa-trash"></i>
+        <% end %>
+      </td>
+      <td></td>
+    </tr>
+  <% end %>
 </table>

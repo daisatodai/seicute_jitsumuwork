@@ -1,5 +1,5 @@
 <div class="login">
-  <%= image_tag('seicute_logo.png', size: '200x200', alt: "ロゴ") %>
+  <%= image_tag('seicute_logo_login.png', size: '200x200', alt: "ロゴ") %>
 </div>
 <br><br>
 <%= form_with(url: sessions_path, local: true) do |f| %>  
@@ -10,3 +10,6 @@
   <br>
   <%= f.submit "ログイン" %>
 <% end %>
+<br>
+<p><%= link_to "ゲストログイン", 'guest_login', method: :post %></p>
+<p><%= link_to "ゲストログイン(管理者)", 'guest_admin_login', method: :post %></p>

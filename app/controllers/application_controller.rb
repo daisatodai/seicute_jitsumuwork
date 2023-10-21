@@ -16,5 +16,5 @@ class ApplicationController < ActionController::Base
       redirect_to invoices_path
     end
   end
-  
+
 end
