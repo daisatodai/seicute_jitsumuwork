@@ -44,7 +44,6 @@ class InvoicesController < ApplicationController
         # Google Driveへの画像連携処理開始
         # 格納先のフォルダーの存在を確認し、なければ作成する
         top_folder = @drive.file_by_id(ENV['GOOGLE_DRIVE_TOP_LEVEL_FOLDER_ID'])
-        # binding.pry
         year = params[:invoice][:issued_on][0, 4] + "年"
         month = params[:invoice][:issued_on][5, 2] + "月"
         if top_folder.file_by_title(year)
@@ -63,7 +62,6 @@ class InvoicesController < ApplicationController
           filename = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
           file_ext = File.extname(filename)
           file_find = third_level_folder.upload_from_file(File.absolute_path(file), filename, convert: false)
-          # binding.pry
         end
         # Google Driveへの画像連携処理終了
         # 成功したかのチェック
@@ -214,7 +212,6 @@ class InvoicesController < ApplicationController
       end
     end
     file_checks = files.compact
-    # binding.pry
     # 請求書の更新が成功した場合の処理
     if @invoice.update(invoice_params)
       # Google Driveへの画像連携処理開始
@@ -239,7 +236,6 @@ class InvoicesController < ApplicationController
       pictures.each.with_index do |picture, index|
         picture_name = "#{year}#{month}_#{params[:invoice][:subject]}_#{index + 1}"
         file_ext = File.extname(picture_name)
-        # binding.pry
         file = picture.image.instance_variable_get(:@file)
         file_path = file.instance_variable_get(:@file)
         file_find = third_level_folder.upload_from_file(file_path, picture_name, convert: false)
@@ -269,7 +265,6 @@ class InvoicesController < ApplicationController
       # freeeへの請求書内容連携処理開始
       freee_deal_id = @invoice.freee_deal_id
       if freee_deal_id.present? #更新かどうか確認
-        binding.pry
         deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
         connection = Faraday::Connection.new(url: deal_url) do|conn|
           conn.request :url_encoded
@@ -336,7 +331,6 @@ class InvoicesController < ApplicationController
       end
       # freeeへの請求書内容連携処理終了
       # 成功したかレスポンスをチェック
-      binding.pry
       if response.status == 200 || response.status == 201
         invoice = Invoice.find(@invoice.id)
         invoice.update(freee_api_status: 1, error: nil)
@@ -502,12 +496,10 @@ class InvoicesController < ApplicationController
   # 認可コードを取得
   def get_freee_authentication_code
     if session[:authentication_code]
-      # binding.pry
     else
       if request.query_string.match(/code=(.*)/)
         query_string = request.query_string.match(/code=(.*)/)
         session[:authentication_code] = query_string[1]
-        # binding.pry
       else
         redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=https%3A%2F%2Fboiling-earth-04784-9dfd8063f145.herokuapp.com%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
       end
@@ -534,7 +526,6 @@ class InvoicesController < ApplicationController
       end
       session[:access_token] = JSON.parse(response.body)["access_token"]
       session[:refresh_token] = JSON.parse(response.body)["refresh_token"]
-      # binding.pry
     end
   end
 
@@ -555,7 +546,6 @@ class InvoicesController < ApplicationController
         refresh_token: session[:refresh_token]
       }
     end
-    # binding.pry
     # 疎通できなければ、リフレッシュトークンを用いてアクセストークンを更新する
     unless response.status == 200
       token_url  = "https://accounts.secure.freee.co.jp/public_api/token"
@@ -576,14 +566,12 @@ class InvoicesController < ApplicationController
       if response.status == 200
         session[:access_token] = JSON.parse(response.body)["access_token"]
         session[:refresh_token] = JSON.parse(response.body)["refresh_token"]
-        # binding.pry
       else # それでもダメなら、認証し直す
         session[:authentication_code] = nil
         session[:access_token] = nil
         session[:refresh_token] = nil
         flash[:info] = "freeeへの接続に問題があったため、再認証しました"
         redirect_to invoices_path
-        # binding.pry
       end
     end
   end
