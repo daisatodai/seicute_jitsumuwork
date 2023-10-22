@@ -25,6 +25,9 @@ gem 'multipart-post', '~> 2.3'
 gem "cocoon"
 gem 'kaminari'
 gem 'bootstrap', '~> 4.4.1'
+gem 'net-smtp'
+gem 'net-imap'
+gem 'net-pop'
 
 gem 'bootsnap', '>= 1.4.4', require: false
 
