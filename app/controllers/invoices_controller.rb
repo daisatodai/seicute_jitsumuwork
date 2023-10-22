@@ -509,7 +509,7 @@ class InvoicesController < ApplicationController
         session[:authentication_code] = query_string[1]
         # binding.pry
       else
-        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
+        redirect_to "https://accounts.secure.freee.co.jp/public_api/authorize?client_id=#{ENV['FREEE_CLIENT_ID']}&redirect_uri=https%3A%2F%2Fboiling-earth-04784-9dfd8063f145.herokuapp.com%2Finvoices&response_type=code&prompt=select_company", allow_other_host: true
       end
     end
   end
@@ -529,7 +529,7 @@ class InvoicesController < ApplicationController
           client_id: ENV["FREEE_CLIENT_ID"],
           client_secret: ENV["FREEE_CLIENT_SECRET"],
           code: session[:authentication_code],
-          redirect_uri: "http://localhost:3000/invoices"
+          redirect_uri: "https://boiling-earth-04784-9dfd8063f145.herokuapp.com/invoices"
         }
       end
       session[:access_token] = JSON.parse(response.body)["access_token"]
@@ -570,7 +570,7 @@ class InvoicesController < ApplicationController
           client_id: ENV['FREEE_CLIENT_ID'],
           client_secret: ENV['FREEE_CLIENT_SECRET'],
           refresh_token: session[:refresh_token],
-          redirect_uri: "http://localhost:3000/invoices"
+          redirect_uri: "https://boiling-earth-04784-9dfd8063f145.herokuapp.com/invoices"
         }
       end
       if response.status == 200
