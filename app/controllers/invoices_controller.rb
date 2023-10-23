@@ -373,6 +373,10 @@ class InvoicesController < ApplicationController
   end
 
   def destroy
+    # アクセストークンが初回かの判定
+    get_freee_access_token
+    # freeeとの疎通確認
+    check_freee_connection
     @invoice = Invoice.find(params[:id])
     pictures = Picture.where(invoice_id: @invoice.id)
     # Google Drive上の画像ファイルを完全削除
@@ -412,40 +416,24 @@ class InvoicesController < ApplicationController
           "company_id": ENV["FREEE_COMPANY_ID"]
         }.to_json
       end
-      if response.status == 200
-        deal_url  = "https://api.freee.co.jp/api/1/deals/#{freee_deal_id}"
-        connection = Faraday::Connection.new(url: deal_url) do|conn|
-          conn.request :url_encoded
-          conn.adapter Faraday.default_adapter
-        end
-        response = connection.delete do |request|
-          request.options.timeout = 300
-          request.headers["Content-Type"] = "application/json"
-          request.headers["Authorization"] = "Bearer #{session[:access_token]}"
-          request.body = {
-            "id": freee_deal_id,
-            "company_id": ENV["FREEE_COMPANY_ID"]
-          }.to_json
-        end
-        # 成功したかレスポンスをチェック
-        if response.status == 204
-        else
-          error = JSON.parse(response.body.force_encoding("UTF-8"))
-          if response.status == 400 || response.status == 404 || response.status == 500
-            error1 = error.values[1][0]["messages"][0]
-            if error.values[1][1]["messages"][0]
-              error2 = error.values[1][1]["messages"][0] unless error.values[1][1]["messages"][0] == nil
-            end
-          elsif response.status == 401 || response.status == 403
-            error1 = error["message"]
-            error2 = error["code"]
+      # 成功したかレスポンスをチェック
+      if response.status == 204
+      else
+        error = JSON.parse(response.body.force_encoding("UTF-8"))
+        if response.status == 400 || response.status == 404 || response.status == 500
+          error1 = error.values[1][0]["messages"][0]
+          if error.values[1][1]["messages"][0]
+            error2 = error.values[1][1]["messages"][0] unless error.values[1][1]["messages"][0] == nil
           end
-          errors = []
-          errors << error1
-          errors << error2 unless error2 == nil
-          @invoice.update(freee_api_status: 0)
-          status = response.status
+        elsif response.status == 401 || response.status == 403
+          error1 = error["message"]
+          error2 = error["code"]
         end
+        errors = []
+        errors << error1
+        errors << error2 unless error2 == nil
+        @invoice.update(freee_api_status: 0)
+        status = response.status
       end
     else
       status = 204
