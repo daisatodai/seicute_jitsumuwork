@@ -418,6 +418,7 @@ class InvoicesController < ApplicationController
       end
       # 成功したかレスポンスをチェック
       if response.status == 204
+        status = 204
       else
         error = JSON.parse(response.body.force_encoding("UTF-8"))
         if response.status == 400 || response.status == 404 || response.status == 500
