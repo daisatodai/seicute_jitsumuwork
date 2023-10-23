@@ -26,8 +26,8 @@ class SessionsController < ApplicationController
 
   def guest_admin_login
     redirect_to root_path, alert: 'すでにログインしています' if current_user
-    random_value = SecureRandom.hex(2)
-    user = User.create!(email: "test_#{random_value}@example.com", password: "#{random_value}", password_confirmation: "#{random_value}", role: 5)
+    random_value = SecureRandom.hex(3)
+    user = User.create!(email: "#{random_value}@example.com", password: "#{random_value}", password_confirmation: "#{random_value}", role: 5)
     auto_login(user)
     flash[:info] = "ゲスト管理者としてログインしました"
     redirect_to root_path
@@ -35,8 +35,8 @@ class SessionsController < ApplicationController
 
   def guest_login
     redirect_to root_path, alert: 'すでにログインしています' if current_user
-    random_value = SecureRandom.hex(2)
-    user = User.create!(email: "test_#{random_value}@example.com", password: "#{random_value}", password_confirmation: "#{random_value}", role: 0)
+    random_value = SecureRandom.hex(3)
+    user = User.create!(email: "#{random_value}@example.com", password: "#{random_value}", password_confirmation: "#{random_value}", role: 0)
     auto_login(user)
     flash[:info] = "ゲストとしてログインしました"
     redirect_to root_path
