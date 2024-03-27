@@ -2,7 +2,7 @@ class InvoicesController < ApplicationController
   before_action :admin?, only: %i[edit update destroy]
   before_action :auth_google_drive
   before_action :get_freee_authentication_code, only: %i[index new edit]
-  
+
   def index
     get_freee_access_token
     # freeeとの疎通確認
@@ -474,7 +474,6 @@ class InvoicesController < ApplicationController
       token_url: '/o/oauth2/token',
       authorize_url: '/o/oauth2/auth'
     )
-
     @token = OAuth2::AccessToken.from_hash(
       client, { refresh_token: ENV['GOOGLE_DRIVE_REFRESH_TOKEN'], expires_at: 3600 }
     ).refresh!.token
